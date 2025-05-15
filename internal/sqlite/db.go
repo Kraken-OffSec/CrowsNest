@@ -363,3 +363,57 @@ func GetCredsCount(options *DBOptions) (int64, error) {
 
 	return count, nil
 }
+
+// ExecuteRawQuery executes a raw SQL query and returns the results as a slice of maps
+func ExecuteRawQuery(query string) ([]map[string]interface{}, error) {
+	db := GetDB()
+	rows, err := db.Raw(query).Rows()
+	if err != nil {
+		zap.L().Error("raw_query",
+			zap.String("message", "failed to execute raw query"),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("failed to execute raw query: %w", err)
+	}
+	defer rows.Close()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		zap.L().Error("raw_query",
+			zap.String("message", "failed to get columns from raw query"),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("failed to get columns from raw query: %w", err)
+	}
+
+	var results []map[string]interface{}
+
+	for rows.Next() {
+		// Create a slice of interface{} to hold the values
+		values := make([]interface{}, len(columns))
+		pointers := make([]interface{}, len(columns))
+		for i := range values {
+			pointers[i] = &values[i]
+		}
+
+		// Scan the result into the pointers
+		if err := rows.Scan(pointers...); err != nil {
+			zap.L().Error("raw_query",
+				zap.String("message", "failed to scan row from raw query"),
+				zap.Error(err),
+			)
+			return nil, fmt.Errorf("failed to scan row from raw query: %w", err)
+		}
+
+		// Create a map for this row
+		rowMap := make(map[string]interface{})
+		for i, col := range columns {
+			val := values[i]
+			rowMap[col] = val
+		}
+
+		results = append(results, rowMap)
+	}
+
+	return results, nil
+}

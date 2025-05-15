@@ -2,6 +2,7 @@ package badger
 
 import (
 	"crypto/sha256"
+	"errors"
 	"github.com/dgraph-io/badger/v4"
 	"go.uber.org/zap"
 	"log"
@@ -123,28 +124,42 @@ func GetKey() string {
 	return apiKey
 }
 
-func GetEmail() string {
-	var email string
+func GetUseLocalDB() bool {
+	var useLocal bool
 
 	err := db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte("cfg:email"))
+		item, err := txn.Get([]byte("cfg:use_local_db"))
 		if err != nil {
-			return err // could be ErrKeyNotFound
+			// If key not found, set default to false and return nil
+			if errors.Is(err, badger.ErrKeyNotFound) {
+				// Store the default value for future use
+				err = StoreUseLocalDB(false)
+				if err != nil {
+					zap.L().Error("store_use_local_db",
+						zap.String("message", "failed to store use_local_db"),
+						zap.Error(err),
+					)
+					return err
+				}
+				return nil
+			}
+			// Return other errors
+			return err
 		}
 		return item.Value(func(val []byte) error {
-			email = string(val)
+			useLocal = val[0] == 1
 			return nil
 		})
 	})
 
 	if err != nil {
-		zap.L().Error("get_email",
-			zap.String("message", "failed to get email"),
+		zap.L().Error("get_use_local_db",
+			zap.String("message", "failed to get use_local_db"),
 			zap.Error(err),
 		)
 	}
 
-	return email
+	return useLocal
 }
 
 func StoreKey(apiKey string) error {
@@ -160,13 +175,20 @@ func StoreKey(apiKey string) error {
 	return err
 }
 
-func StoreEmail(email string) error {
+func StoreUseLocalDB(useLocal bool) error {
+	var local byte
+	if useLocal {
+		local = 1
+	} else {
+		local = 0
+	}
+
 	err := db.Update(func(txn *badger.Txn) error {
-		return txn.Set([]byte("cfg:email"), []byte(email))
+		return txn.Set([]byte("cfg:use_local_db"), []byte{local})
 	})
 	if err != nil {
-		zap.L().Error("set_email",
-			zap.String("message", "failed to set email"),
+		zap.L().Error("set_use_local_db",
+			zap.String("message", "failed to set use_local_db"),
 			zap.Error(err),
 		)
 	}

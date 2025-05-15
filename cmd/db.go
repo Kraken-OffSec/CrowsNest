@@ -11,6 +11,28 @@ import (
 	"strings"
 )
 
+func init() {
+	// Add whois command to root command
+	rootCmd.AddCommand(databaseQueryCmd)
+
+	// Add flags specific to whois command
+	databaseQueryCmd.Flags().StringVarP(&dbQueryTableName, "table", "t", "", "Table to query (results, creds, whois, subdomains, history, query_options)")
+	databaseQueryCmd.Flags().IntVarP(&dbQueryLimitRows, "limit", "l", 100, "Limit number of results")
+	databaseQueryCmd.Flags().StringVarP(&dbQueryNotNull, "not-null", "n", "", "Filter for non-null values (comma-separated list, e.g., 'password,email')")
+	databaseQueryCmd.Flags().StringVarP(&dbQueryColumns, "columns", "c", "", "Columns to display in output (comma-separated list, e.g., 'username,email,password')")
+	databaseQueryCmd.Flags().StringVarP(&dbQueryUserQuery, "query", "q", "", "User query to execute")
+	databaseQueryCmd.Flags().StringVarP(&dbQueryRawQuery, "raw-query", "r", "", "Raw SQL query to execute")
+	databaseQueryCmd.Flags().BoolVarP(&dbQueryListAll, "list-all", "a", false, "List all columns")
+
+	// Add mutually exclusive flags to query and raw-query
+	// Cannot use query and raw-query at the same time
+	databaseQueryCmd.MarkFlagsMutuallyExclusive("query", "raw-query")
+	// Raw query does not require a table
+	databaseQueryCmd.MarkFlagsMutuallyExclusive("query", "table")
+	// List all columns does not require a query or raw-query
+	databaseQueryCmd.MarkFlagsMutuallyExclusive("raw-query", "list-all")
+}
+
 var (
 	dbQueryTableName string
 	dbQueryLimitRows int
@@ -44,28 +66,6 @@ var (
 		},
 	}
 )
-
-func init() {
-	// Add whois command to root command
-	rootCmd.AddCommand(databaseQueryCmd)
-
-	// Add flags specific to whois command
-	databaseQueryCmd.Flags().StringVarP(&dbQueryTableName, "table", "t", "", "Table to query (results, creds, whois, subdomains, history, query_options)")
-	databaseQueryCmd.Flags().IntVarP(&dbQueryLimitRows, "limit", "l", 100, "Limit number of results")
-	databaseQueryCmd.Flags().StringVarP(&dbQueryNotNull, "not-null", "n", "", "Filter for non-null values (comma-separated list, e.g., 'password,email')")
-	databaseQueryCmd.Flags().StringVarP(&dbQueryColumns, "columns", "c", "", "Columns to display in output (comma-separated list, e.g., 'username,email,password')")
-	databaseQueryCmd.Flags().StringVarP(&dbQueryUserQuery, "query", "q", "", "User query to execute")
-	databaseQueryCmd.Flags().StringVarP(&dbQueryRawQuery, "raw-query", "r", "", "Raw SQL query to execute")
-	databaseQueryCmd.Flags().BoolVarP(&dbQueryListAll, "list-all", "a", false, "List all columns")
-
-	// Add mutually exclusive flags to query and raw-query
-	// Cannot use query and raw-query at the same time
-	databaseQueryCmd.MarkFlagsMutuallyExclusive("query", "raw-query")
-	// Raw query does not require a table
-	databaseQueryCmd.MarkFlagsMutuallyExclusive("query", "table")
-	// List all columns does not require a query or raw-query
-	databaseQueryCmd.MarkFlagsMutuallyExclusive("raw-query", "list-all")
-}
 
 func tableQuery(table Table) {
 

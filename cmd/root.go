@@ -6,11 +6,12 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"os"
+	"strings"
 )
 
 var (
 	// Global Flags
-	alternativeDatabase string
+	useLocalDatabase bool
 
 	// rootCmd is the base command for the CLI.
 	rootCmd = &cobra.Command{
@@ -58,14 +59,15 @@ func Execute() {
 }
 
 func init() {
+	// Attempt to retreive the useLocalDB
+	useLocalDatabase = badger.GetUseLocalDB()
+
 	// Hide the default help command
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
-	// Add global flags
-	rootCmd.PersistentFlags().StringVar(&alternativeDatabase, "alt-db", "", "Alternative database path")
-
 	// Add subcommands
 	rootCmd.AddCommand(setKeyCmd)
+	rootCmd.AddCommand(setLocalDb)
 }
 
 // Command to set API key
@@ -82,6 +84,32 @@ var setKeyCmd = &cobra.Command{
 			return
 		}
 		fmt.Println("API key stored successfully")
+	},
+}
+
+var setLocalDb = &cobra.Command{
+	Use:   "set-local-db [true|false]",
+	Short: "Set dehasher to use a local database path instead of the default (must be unset to use default)",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		useLocal := strings.ToLower(args[0])
+
+		if useLocal == "true" {
+			useLocalDatabase = true
+		} else if useLocal == "false" {
+			useLocalDatabase = false
+		} else {
+			fmt.Println("Invalid argument. Please use 'true' or 'false'.")
+			return
+		}
+
+		// Store useLocal in badger DB
+		err := badger.StoreUseLocalDB(useLocalDatabase)
+		if err != nil {
+			fmt.Printf("Error storing local database useLocal: %v\n", err)
+			return
+		}
+		fmt.Println("Local database useLocal stored successfully")
 	},
 }
 
