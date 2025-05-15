@@ -16,8 +16,8 @@ func init() {
 
 	// Add flags specific to export command
 	exportCmd.Flags().IntVarP(&exportLimitRows, "limit", "l", 100, "Limit number of results")
-	exportCmd.Flags().BoolVarP(&exportListAll, "list-all", "a", false, "List all columns")
-	exportCmd.Flags().StringVarP(&exportTableName, "table", "t", "", "Table to export")
+	exportCmd.Flags().BoolVarP(&exportListAll, "list-all", "a", false, "List all tables and their columns")
+	exportCmd.Flags().StringVarP(&exportTableName, "table", "t", "", "Table to export (results, creds, whois, subdomains, history, runs)")
 	exportCmd.Flags().StringVarP(&exportNotNull, "not-null", "n", "", "Filter for non-null values (comma-separated list, e.g., 'password,email')")
 	exportCmd.Flags().StringVarP(&exportColumns, "columns", "c", "", "Columns to display in output (comma-separated list, e.g., 'username,email,password')")
 	exportCmd.Flags().StringVarP(&exportUserQuery, "user-query", "q", "", "User query to execute")
@@ -50,6 +50,12 @@ var (
 		Use:   "export",
 		Short: "Export database to file",
 		Run: func(cmd *cobra.Command, args []string) {
+			// If list-all flag is set, list all tables and columns
+			if exportListAll {
+				listAvailableTables()
+				return
+			}
+
 			fmt.Println("[*] Exporting database...")
 
 			// If Raw Query is set, execute it and export
@@ -59,11 +65,65 @@ var (
 				return
 			}
 
+			// Validate table name
+			if exportTableName == "" {
+				fmt.Println("[!] Error: Table name is required. Use -t or --table to specify a table.")
+				fmt.Println("[*] Available tables: results, creds, whois, subdomains, history, runs")
+				fmt.Println("[*] Use --list-all to see all tables and their columns.")
+				return
+			}
+
+			if !isValidTable(exportTableName) {
+				fmt.Printf("[!] Error: Unknown table '%s'.\n", exportTableName)
+				fmt.Println("[*] Available tables: results, creds, whois, subdomains, history, runs")
+				fmt.Println("[*] Use --list-all to see all tables and their columns.")
+				return
+			}
+
+			// Validate columns if specified
+			if exportColumns != "" {
+				columns := strings.Split(exportColumns, ",")
+				invalidColumns := validateColumns(exportTableName, columns)
+				if len(invalidColumns) > 0 {
+					fmt.Printf("[!] Error: Invalid column(s) for table '%s': %s\n",
+						exportTableName, strings.Join(invalidColumns, ", "))
+					fmt.Println("[*] Available columns for this table:")
+					for i := 0; i < len(availableTables[exportTableName]); i += 5 {
+						end := i + 5
+						if end > len(availableTables[exportTableName]) {
+							end = len(availableTables[exportTableName])
+						}
+						fmt.Printf("    %s\n", strings.Join(availableTables[exportTableName][i:end], ", "))
+					}
+					return
+				}
+			}
+
+			// Validate not-null fields if specified
+			if exportNotNull != "" {
+				notNullFields := strings.Split(exportNotNull, ",")
+				invalidFields := validateColumns(exportTableName, notNullFields)
+				if len(invalidFields) > 0 {
+					fmt.Printf("[!] Error: Invalid not-null field(s) for table '%s': %s\n",
+						exportTableName, strings.Join(invalidFields, ", "))
+					fmt.Println("[*] Available columns for this table:")
+					for i := 0; i < len(availableTables[exportTableName]); i += 5 {
+						end := i + 5
+						if end > len(availableTables[exportTableName]) {
+							end = len(availableTables[exportTableName])
+						}
+						fmt.Printf("    %s\n", strings.Join(availableTables[exportTableName][i:end], ", "))
+					}
+					return
+				}
+			}
+
 			// Determine which table to query based on the tableTypeDBQuery parameter
 			table := sqlite.GetTable(exportTableName)
 			if table == sqlite.UnknownTable {
-				fmt.Printf("Error: Unknown table type '%s'.\n", exportTableName)
-				cmd.Help()
+				fmt.Printf("[!] Error: Unknown table type '%s'.\n", exportTableName)
+				fmt.Println("[*] Available tables: results, creds, whois, subdomains, history, runs")
+				fmt.Println("[*] Use --list-all to see all tables and their columns.")
 				return
 			}
 
@@ -98,6 +158,12 @@ func exportTableQuery(table sqlite.Table) {
 
 	// Get the object for the table
 	object := table.Object()
+
+	// Check if object is nil (invalid table)
+	if object == nil {
+		fmt.Printf("[!] Error: Table '%s' is not valid or does not exist.\n", exportTableName)
+		return
+	}
 
 	// Query the database
 	db := sqlite.GetDB()
