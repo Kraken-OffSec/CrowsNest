@@ -2,6 +2,7 @@ package whois
 
 import (
 	"bytes"
+	"dehasher/internal/query"
 	"dehasher/internal/sqlite"
 	"encoding/json"
 	"errors"
@@ -40,13 +41,37 @@ func WhoisSearch(domain, apiKey string) (sqlite.WhoIsLookupResult, error) {
 		defer res.Body.Close()
 	}
 	if err != nil {
+		zap.L().Error("whois_search",
+			zap.String("message", "failed to perform request"),
+			zap.Error(err),
+		)
 		return whois, err
 	}
 	if res == nil {
+		zap.L().Error("whois_search",
+			zap.String("message", "response was nil"),
+		)
 		return whois, errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("whois_search",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return whois, &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		zap.L().Error("whois_search",
+			zap.String("message", "failed to read response body"),
+			zap.Error(err),
+		)
 		return whois, err
 	}
 
@@ -97,6 +122,19 @@ func WhoisHistory(domain, apiKey string) (sqlite.WhoIsHistory, error) {
 		)
 		return whois, errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("whois_history",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return whois, &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		zap.L().Error("whois_history",
@@ -139,13 +177,37 @@ func ReverseWHOIS(include []string, exclude []string, reverseType, apiKey string
 		defer res.Body.Close()
 	}
 	if err != nil {
+		zap.L().Error("reverse_whois",
+			zap.String("message", "failed to perform request"),
+			zap.Error(err),
+		)
 		return "", err
 	}
 	if res == nil {
+		zap.L().Error("reverse_whois",
+			zap.String("message", "response was nil"),
+		)
 		return "", errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("reverse_whois",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return "", &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		zap.L().Error("reverse_whois",
+			zap.String("message", "failed to read response body"),
+			zap.Error(err),
+		)
 		return "", err
 	}
 	return string(b), nil
@@ -168,13 +230,37 @@ func WhoisIP(ipAddress, apiKey string) ([]byte, error) {
 		defer res.Body.Close()
 	}
 	if err != nil {
+		zap.L().Error("whois_ip",
+			zap.String("message", "failed to perform request"),
+			zap.Error(err),
+		)
 		return nil, err
 	}
 	if res == nil {
+		zap.L().Error("whois_ip",
+			zap.String("message", "response was nil"),
+		)
 		return nil, errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("whois_ip",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return nil, &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		zap.L().Error("whois_ip",
+			zap.String("message", "failed to read response body"),
+			zap.Error(err),
+		)
 		return nil, err
 	}
 	return b, nil
@@ -197,13 +283,37 @@ func WhoisMX(mxAddress, apiKey string) (string, error) {
 		defer res.Body.Close()
 	}
 	if err != nil {
+		zap.L().Error("whois_mx",
+			zap.String("message", "failed to perform request"),
+			zap.Error(err),
+		)
 		return "", err
 	}
 	if res == nil {
+		zap.L().Error("whois_mx",
+			zap.String("message", "response was nil"),
+		)
 		return "", errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("whois_mx",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return "", &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		zap.L().Error("whois_mx",
+			zap.String("message", "failed to read response body"),
+			zap.Error(err),
+		)
 		return "", err
 	}
 	return string(b), nil
@@ -226,13 +336,37 @@ func WhoisNS(nsAddress, apiKey string) (string, error) {
 		defer res.Body.Close()
 	}
 	if err != nil {
+		zap.L().Error("whois_ns",
+			zap.String("message", "failed to perform request"),
+			zap.Error(err),
+		)
 		return "", err
 	}
 	if res == nil {
+		zap.L().Error("whois_ns",
+			zap.String("message", "response was nil"),
+		)
 		return "", errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("whois_ns",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return "", &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		zap.L().Error("whois_ns",
+			zap.String("message", "failed to read response body"),
+			zap.Error(err),
+		)
 		return "", err
 	}
 	return string(b), nil
@@ -256,13 +390,37 @@ func WhoisSubdomainScan(domain, apiKey string) (sqlite.WhoIsSubdomainScan, error
 		defer res.Body.Close()
 	}
 	if err != nil {
+		zap.L().Error("whois_subdomain_scan",
+			zap.String("message", "failed to perform request"),
+			zap.Error(err),
+		)
 		return whois, err
 	}
 	if res == nil {
+		zap.L().Error("whois_subdomain_scan",
+			zap.String("message", "response was nil"),
+		)
 		return whois, errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("whois_subdomain_scan",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return whois, &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		zap.L().Error("whois_subdomain_scan",
+			zap.String("message", "failed to read response body"),
+			zap.Error(err),
+		)
 		return whois, err
 	}
 
@@ -294,13 +452,37 @@ func GetWHOISCredits(apiKey string) (sqlite.WhoIsCredits, error) {
 		defer res.Body.Close()
 	}
 	if err != nil {
+		zap.L().Error("get_whois_credits",
+			zap.String("message", "failed to perform request"),
+			zap.Error(err),
+		)
 		return whoisCredits, err
 	}
 	if res == nil {
+		zap.L().Error("get_whois_credits",
+			zap.String("message", "response was nil"),
+		)
 		return whoisCredits, errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := query.GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("get_whois_credits",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return whoisCredits, &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
+		zap.L().Error("get_whois_credits",
+			zap.String("message", "failed to read response body"),
+			zap.Error(err),
+		)
 		return whoisCredits, err
 	}
 

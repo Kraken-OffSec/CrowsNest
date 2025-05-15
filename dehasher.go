@@ -65,7 +65,7 @@ func initializeLogger() {
 		})),
 	})
 
-	zap.L().Info("some message", zap.Int("status", 0))
+	zap.L().Info("logger initialized", zap.Int("status", 0))
 }
 
 func main() {

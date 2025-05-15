@@ -90,7 +90,20 @@ func (dh *Dehasher) Start() {
 		fmt.Printf("\n\t[*] Performing Request...")
 		count, err := dh.client.Search(*dh.request)
 		if err != nil {
-			fmt.Printf("[!] Error performing request: %v", err)
+			// Check if it's a DehashError
+			if dhErr, ok := err.(*DehashError); ok {
+				fmt.Printf("\n\t[!] Dehashed API Error: %s (Code: %d)", dhErr.Message, dhErr.Code)
+				zap.L().Error("dehashed_api_error",
+					zap.String("message", dhErr.Message),
+					zap.Int("code", dhErr.Code),
+				)
+			} else {
+				fmt.Printf("\n\t[!] Error performing request: %v", err)
+				zap.L().Error("request_error",
+					zap.String("message", "failed to perform request"),
+					zap.Error(err),
+				)
+			}
 			os.Exit(-1)
 		}
 

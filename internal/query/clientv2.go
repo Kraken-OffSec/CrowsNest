@@ -163,6 +163,19 @@ func (dcv2 *DehashedClientV2) Search(searchRequest DehashedSearchRequest) (int, 
 		)
 		return -1, errors.New("response was nil")
 	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		dhErr := GetDehashedError(res.StatusCode)
+		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
+		zap.L().Error("v2_search",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+		)
+		return -1, &dhErr
+	}
+
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		zap.L().Error("v2_search",
