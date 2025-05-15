@@ -14,6 +14,7 @@
 - Error Handling
 - Credential Dumping
 - Intelligent Token Usage
+- Database Path Configuration
 # Options
 
 ```bash-session
@@ -43,6 +44,7 @@ options:
    -C --creds-only                                        Return Credentials Only
    -k --key                                                               API Key
    -a --authorized-email                Email to pair with key for authentication
+   --local-db                           Use local database in current directory
 
 
 v1.0
@@ -68,6 +70,30 @@ To begin, clone the repository
 git clone https://github.com/Ar1ste1a/Dehasher.git
 cd Dehasher
 go build dehasher.go
+```
+
+# Database Configuration
+
+Dehasher supports two database storage options:
+
+1. **Default Path** (default): Stores the database at `~/.local/share/Dehasher/db/dehashed.sqlite`
+2. **Local Path**: Stores the database in the current directory as `./dehasher.sqlite`
+
+To configure the database location:
+
+```bash
+# Use local database in current directory
+./dehasher set-local-db true
+
+# Use default database path
+./dehasher set-local-db false
+```
+
+You can also specify the database location when running commands:
+
+```bash
+# Use local database for this command only
+./dehasher -k YOUR_API_KEY -a YOUR_EMAIL -E @example.com --local-db
 ```
 
 # Crafting a query
@@ -121,4 +147,3 @@ dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -C -B -U admin -X u -Y -o admin
 # Return matches for usernames exactly matching "admin" and write to xml file 'admins_file.xml'
 dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -C -B -U admin -X u -x -o admins_file
 ```
-
