@@ -1,9 +1,6 @@
-package cmd
+package sqlite
 
-import (
-	"dehasher/internal/sqlite"
-	"strings"
-)
+import "strings"
 
 type Table int64
 
@@ -39,17 +36,17 @@ func GetTable(userInput string) Table {
 func (t Table) Object() interface{} {
 	switch t {
 	case ResultsTable:
-		return sqlite.Result{}
+		return Result{}
 	case RunsTable:
-		return sqlite.QueryOptions{}
+		return QueryOptions{}
 	case CredsTable:
-		return sqlite.Creds{}
+		return Creds{}
 	case WhoIsTable:
-		return sqlite.WhoisRecord{}
+		return WhoisRecord{}
 	case SubdomainsTable:
-		return sqlite.SubdomainRecord{}
+		return SubdomainRecord{}
 	case HistoryTable:
-		return sqlite.HistoryRecord{}
+		return HistoryRecord{}
 	default:
 		return nil
 	}

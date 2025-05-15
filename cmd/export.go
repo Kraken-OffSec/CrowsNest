@@ -20,18 +20,18 @@ func init() {
 	exportCmd.Flags().StringVarP(&exportTableName, "table", "t", "", "Table to export")
 	exportCmd.Flags().StringVarP(&exportNotNull, "not-null", "n", "", "Filter for non-null values (comma-separated list, e.g., 'password,email')")
 	exportCmd.Flags().StringVarP(&exportColumns, "columns", "c", "", "Columns to display in output (comma-separated list, e.g., 'username,email,password')")
-	exportCmd.Flags().StringVarP(&exportUserQuery, "query", "q", "", "User query to execute")
+	exportCmd.Flags().StringVarP(&exportUserQuery, "user-query", "q", "", "User query to execute")
 	exportCmd.Flags().StringVarP(&exportRawQuery, "raw-query", "r", "", "Raw SQL query to execute")
 	exportCmd.Flags().StringVarP(&exportFormat, "format", "f", "json", "Output format (json, yaml, xml, txt)")
 	exportCmd.Flags().StringVarP(&exportFile, "file", "o", "export", "File to output results to including extension")
 
 	// Add mutually exclusive flags to query and raw-query
 	// Cannot use query and raw-query at the same time
-	databaseQueryCmd.MarkFlagsMutuallyExclusive("query", "raw-query")
+	exportCmd.MarkFlagsMutuallyExclusive("user-query", "raw-query")
 	// Raw query does not require a table
-	databaseQueryCmd.MarkFlagsMutuallyExclusive("query", "table")
+	exportCmd.MarkFlagsMutuallyExclusive("user-query", "table")
 	// List all columns does not require a query or raw-query
-	databaseQueryCmd.MarkFlagsMutuallyExclusive("raw-query", "list-all")
+	exportCmd.MarkFlagsMutuallyExclusive("raw-query", "list-all")
 }
 
 // DB export command
@@ -60,8 +60,8 @@ var (
 			}
 
 			// Determine which table to query based on the tableTypeDBQuery parameter
-			table := GetTable(exportTableName)
-			if table == UnknownTable {
+			table := sqlite.GetTable(exportTableName)
+			if table == sqlite.UnknownTable {
 				fmt.Printf("Error: Unknown table type '%s'.\n", exportTableName)
 				cmd.Help()
 				return
@@ -74,7 +74,7 @@ var (
 )
 
 // exportTableQuery queries a table and exports the results
-func exportTableQuery(table Table) {
+func exportTableQuery(table sqlite.Table) {
 	// Get the columns to query
 	columns := []string{"*"}
 	if exportColumns != "" {

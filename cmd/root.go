@@ -11,7 +11,6 @@ import (
 
 var (
 	// Global Flags
-	useLocalDatabase bool
 
 	// rootCmd is the base command for the CLI.
 	rootCmd = &cobra.Command{
@@ -20,15 +19,15 @@ var (
 		Long: fmt.Sprintf(
 			"%s\n%s",
 			`
- ______   _______           _______  _______           _______  _______ 
+ ______   _______           _______  _______           _______  _______
 (  __  \ (  ____ \|\     /|(  ___  )(  ____ \|\     /|(  ____ \(  ____ )
 | (  \  )| (    \/| )   ( || (   ) || (    \/| )   ( || (    \/| (    )|
 | |   ) || (__    | (___) || (___) || (_____ | (___) || (__    | (____)|
 | |   | ||  __)   |  ___  ||  ___  |(_____  )|  ___  ||  __)   |     __)
-| |   ) || (      | (   ) || (   ) |      ) || (   ) || (      | (\ (   
+| |   ) || (      | (   ) || (   ) |      ) || (   ) || (      | (\ (
 | (__/  )| (____/\| )   ( || )   ( |/\____) || )   ( || (____/\| ) \ \__
 (______/ (_______/|/     \||/     \|\_______)|/     \|(_______/|/   \__/
-						     An Ar1ste1a Project                                                                        
+						     An Ar1ste1a Project
 `,
 			`––•–√\/––√\/––•––––•–√\/––√\/––•––––•–√\/––√\/––•––√\/––•––––•–√\/––√\/––•––
   Dehasher can query the query API for:
@@ -59,11 +58,14 @@ func Execute() {
 }
 
 func init() {
-	// Attempt to retreive the useLocalDB
-	useLocalDatabase = badger.GetUseLocalDB()
+	//// Attempt to retrieve the useLocalDB
+	//useLocalDatabase := badger.GetUseLocalDB()
 
 	// Hide the default help command
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+
+	//// Add global flags
+	//rootCmd.PersistentFlags().BoolVar(&useLocalDatabase, "local-db", useLocalDatabase, "Use local database in current directory instead of default path")
 
 	// Add subcommands
 	rootCmd.AddCommand(setKeyCmd)
@@ -88,10 +90,12 @@ var setKeyCmd = &cobra.Command{
 }
 
 var setLocalDb = &cobra.Command{
-	Use:   "set-local-db [true|false]",
-	Short: "Set dehasher to use a local database path instead of the default (must be unset to use default)",
+	Use:   "local-db [true|false]",
+	Short: "Set dehasher to use a local database path instead of the default path",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		var useLocalDatabase bool
+
 		useLocal := strings.ToLower(args[0])
 
 		if useLocal == "true" {

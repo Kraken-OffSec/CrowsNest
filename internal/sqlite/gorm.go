@@ -15,17 +15,34 @@ import (
 var DB *gorm.DB
 
 // InitDB initializes the database connection
-func InitDB(dbDir string) (*gorm.DB, error) {
-	zap.L().Info("Initializing database")
+func InitDB(dbPath string) (*gorm.DB, error) {
+	zap.L().Info("Initializing database", zap.String("path", dbPath))
 
-	// Create directory if it doesn't exist
-	if err := os.MkdirAll(dbDir, 0755); err != nil {
-		zap.L().Error("Failed to create database directory", zap.Error(err))
-		return nil, fmt.Errorf("failed to create database directory: %w", err)
+	// Check if the path is a file or directory
+	fileInfo, err := os.Stat(dbPath)
+	var finalDbPath string
+
+	// If path doesn't exist or is a directory
+	if os.IsNotExist(err) || (err == nil && fileInfo.IsDir()) {
+		// Treat as directory path
+		if err := os.MkdirAll(dbPath, 0755); err != nil {
+			zap.L().Error("Failed to create database directory", zap.Error(err))
+			return nil, fmt.Errorf("failed to create database directory: %w", err)
+		}
+		finalDbPath = filepath.Join(dbPath, "dehashed.sqlite")
+	} else {
+		// Treat as file path
+		// Ensure the directory exists
+		dir := filepath.Dir(dbPath)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			zap.L().Error("Failed to create parent directory for database", zap.Error(err))
+			return nil, fmt.Errorf("failed to create parent directory for database: %w", err)
+		}
+		finalDbPath = dbPath
 	}
 
-	dbPath := filepath.Join(dbDir, "dehashed.sqlite")
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+	zap.L().Info("Opening database", zap.String("finalPath", finalDbPath))
+	db, err := gorm.Open(sqlite.Open(finalDbPath), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {

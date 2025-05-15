@@ -24,7 +24,7 @@ func init() {
 	basePath = filepath.Join(os.Getenv("HOME"), ".local", "share", "Dehasher")
 	logPath = filepath.Join(basePath, "logs")
 	storePath = filepath.Join(basePath, "keystore")
-	dbPath = filepath.Join(basePath, "db")
+	// dbPath will be set in main() after badger is initialized
 }
 
 func createDirectories() {
@@ -74,6 +74,22 @@ func main() {
 	zap.L().Info("creating_directories")
 	createDirectories()
 
+	zap.L().Info("starting_badger")
+	db := badger.Start(storePath)
+	defer db.Close()
+
+	// Set database path based on useLocalDatabase flag
+	useLocalDB := badger.GetUseLocalDB()
+	if useLocalDB {
+		// Use local database in current directory
+		dbPath = "./dehasher.sqlite"
+		zap.L().Info("Using local database", zap.String("path", dbPath))
+	} else {
+		// Use default database path
+		dbPath = filepath.Join(basePath, "db")
+		zap.L().Info("Using default database path", zap.String("path", dbPath))
+	}
+
 	zap.L().Info("initializing_database")
 	_, err := sqlite.InitDB(dbPath)
 	if err != nil {
@@ -84,10 +100,6 @@ func main() {
 		fmt.Printf("[!] Error initializing database: %v", err)
 		os.Exit(1)
 	}
-
-	zap.L().Info("starting_badger")
-	db := badger.Start(storePath)
-	defer db.Close()
 
 	zap.L().Info("executing_command")
 	cmd.Execute()
