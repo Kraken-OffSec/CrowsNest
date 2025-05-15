@@ -10,8 +10,7 @@ import (
 
 var (
 	// Global Flags
-	apiKey   string
-	apiEmail string
+	alternativeDatabase string
 
 	// rootCmd is the base command for the CLI.
 	rootCmd = &cobra.Command{
@@ -62,14 +61,11 @@ func init() {
 	// Hide the default help command
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
-	// Add global flags for API key and email
-	rootCmd.PersistentFlags().StringVarP(&apiKey, "key", "k", "", "API Key for authentication")
+	// Add global flags
+	rootCmd.PersistentFlags().StringVar(&alternativeDatabase, "alt-db", "", "Alternative database path")
 
 	// Add subcommands
-	rootCmd.AddCommand(dbCmd)
-	rootCmd.AddCommand(queryCmd)
 	rootCmd.AddCommand(setKeyCmd)
-	rootCmd.AddCommand(setEmailCmd)
 }
 
 // Command to set API key
@@ -89,37 +85,11 @@ var setKeyCmd = &cobra.Command{
 	},
 }
 
-// Command to set API email
-var setEmailCmd = &cobra.Command{
-	Use:   "set-email [email]",
-	Short: "Set and store API email",
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		email := args[0]
-		// Store email in badger DB
-		err := storeApiEmail(email)
-		if err != nil {
-			fmt.Printf("Error storing API email: %v\n", err)
-			return
-		}
-		fmt.Println("API email stored successfully")
-	},
-}
-
 // Helper functions to store API credentials
 func storeApiKey(key string) error {
 	err := badger.StoreKey(key)
 	if err != nil {
 		fmt.Printf("Error storing API key: %v\n", err)
-		return err
-	}
-	return nil
-}
-
-func storeApiEmail(email string) error {
-	err := badger.StoreEmail(email)
-	if err != nil {
-		fmt.Printf("Error storing API email: %v\n", err)
 		return err
 	}
 	return nil

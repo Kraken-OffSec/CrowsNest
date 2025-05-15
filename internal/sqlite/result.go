@@ -38,6 +38,10 @@ type Result struct {
 	DatabaseName          string   `json:"database_name,omitempty" xml:"database_name,omitempty" yaml:"database_name,omitempty"`
 }
 
+func (Result) TableName() string {
+	return "results"
+}
+
 type DehashedResults struct {
 	Results []Result `json:"results"`
 }

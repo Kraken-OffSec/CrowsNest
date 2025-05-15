@@ -29,17 +29,11 @@ var (
 		Short: "Dehashed WHOIS lookups and reverse WHOIS searches",
 		Long:  `Perform WHOIS lookups, history searches, reverse WHOIS searches, IP lookups, MX lookups, NS lookups, and subdomain scans.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// Check if API key is provided
-			key := apiKey
-
-			// If not provided as flag, try to get from stored value
-			if key == "" {
-				key = getStoredApiKey()
-			}
+			key := getStoredApiKey()
 
 			// Validate credentials
 			if key == "" {
-				fmt.Println("API key is required. Use --key flag or set it with set-key command.")
+				fmt.Println("API key is required. Set the key with the \"set-key\" command. [dehasher set-key <api_key>]")
 				return
 			}
 
@@ -80,7 +74,7 @@ var (
 					fmt.Printf("Error performing WHOIS lookup: %v\n", err)
 					return
 				}
-				
+
 				// Fix the output format to use proper formatting
 				fmt.Printf("WHOIS Lookup Result:\n%+v\n", result.Data.WhoisRecord)
 
@@ -297,7 +291,4 @@ func init() {
 	whoisCmd.Flags().BoolVarP(&whoisShowCredits, "credits", "c", false, "Show remaining WHOIS credits")
 	whoisCmd.Flags().BoolVarP(&whoisHistory, "history", "H", false, "Perform WHOIS history search [25 Credits]")
 	whoisCmd.Flags().BoolVarP(&whoisSubdomainScan, "subdomains", "s", false, "Perform WHOIS subdomain scan")
-
-	// Add API key flag
-	whoisCmd.Flags().StringVarP(&apiKey, "key", "k", "", "Dehashed API key")
 }

@@ -38,6 +38,10 @@ type WhoisRecord struct {
 	UpdatedDateNormalized string       `json:"updatedDateNormalized"`
 }
 
+func (WhoisRecord) TableName() string {
+	return "whois"
+}
+
 type Audit struct {
 	CreatedDate string `json:"createdDate"`
 	UpdatedDate string `json:"updatedDate"`
@@ -105,6 +109,10 @@ type SubdomainRecord struct {
 	LastSeen  int64  `json:"lastSeen"`
 }
 
+func (SubdomainRecord) TableName() string {
+	return "subdomains"
+}
+
 type WhoIsHistory struct {
 	RemainingCredits int         `json:"remaining_credits"`
 	Data             HistoryData `json:"data"`
@@ -137,6 +145,10 @@ type HistoryRecord struct {
 	UpdatedDateRaw        string      `json:"updatedDateRaw"`
 	WhoisServer           string      `json:"whoisServer"`
 	ZoneContact           ContactInfo `json:"zoneContact" gorm:"serializer:json"`
+}
+
+func (HistoryRecord) TableName() string {
+	return "history"
 }
 
 type ContactInfo struct {

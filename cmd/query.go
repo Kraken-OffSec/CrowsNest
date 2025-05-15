@@ -39,21 +39,11 @@ var (
 		Short: "Query the Dehashed API",
 		Long:  `Query the Dehashed API for emails, usernames, passwords, hashes, IP addresses, and names.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// Check if API key and email are provided
-			key := apiKey
-			email := apiEmail
-
-			// If not provided as flags, try to get from stored values
-			if key == "" {
-				key = getStoredApiKey()
-			}
-			if email == "" {
-				email = getStoredApiEmail()
-			}
+			key := getStoredApiKey()
 
 			// Validate credentials
-			if key == "" || email == "" {
-				fmt.Println("API key and email are required. Use --key and --email flags or set them with set-key and set-email commands.")
+			if key == "" {
+				fmt.Println("API key is required. Set the key with the \"set-key\" command. [dehasher set-key <api_key>]")
 				return
 			}
 
@@ -99,6 +89,9 @@ var (
 )
 
 func init() {
+	// Add query command to root command
+	rootCmd.AddCommand(queryCmd)
+
 	// Add flags specific to query command
 	queryCmd.Flags().IntVarP(&maxRecords, "max-records", "m", 30000, "Maximum amount of records to return")
 	queryCmd.Flags().IntVarP(&maxRequests, "max-requests", "r", -1, "Maximum number of requests to make")
@@ -130,8 +123,4 @@ func init() {
 // Helper functions to get stored API credentials
 func getStoredApiKey() string {
 	return badger.GetKey()
-}
-
-func getStoredApiEmail() string {
-	return badger.GetEmail()
 }

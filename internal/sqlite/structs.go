@@ -69,6 +69,10 @@ type QueryOptions struct {
 	CredsOnly          bool           `json:"creds_only"`
 }
 
+func (QueryOptions) TableName() string {
+	return "query_options"
+}
+
 func NewQueryOptions(maxRecords, maxRequests, startingPage int, outputFormat, outputFile, usernameQuery, emailQuery, ipQuery, passQuery, hashQuery, nameQuery, domainQuery, vinQuery, licensePlateQuery, addressQuery, phoneQuery, socialQuery, cryptoAddressQuery string, regexMatch, wildcardMatch, printBalance, credsOnly bool) *QueryOptions {
 	return &QueryOptions{
 		MaxRecords:         maxRecords,
@@ -101,6 +105,10 @@ type Creds struct {
 	Email    string `json:"email" yaml:"email" xml:"email"`
 	Username string `json:"username" yaml:"username" xml:"username"`
 	Password string `json:"password" yaml:"password" xml:"password"`
+}
+
+func (Creds) TableName() string {
+	return "creds"
 }
 
 func (c Creds) ToString() string {
