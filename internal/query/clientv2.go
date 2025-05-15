@@ -59,27 +59,28 @@ func (dsr *DehashedSearchRequest) buildQuery(query string, param DehashedParamet
 }
 
 func (dsr *DehashedSearchRequest) AddUsernameQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Username.GetArgumentString(query), Username)
 }
 
 func (dsr *DehashedSearchRequest) AddEmailQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Email.GetArgumentString(query), Email)
 }
 
 func (dsr *DehashedSearchRequest) AddIpAddressQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(IpAddress.GetArgumentString(query), IpAddress)
 }
 
 func (dsr *DehashedSearchRequest) AddDomainQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Domain.GetArgumentString(query), Domain)
 }
 
 func (dsr *DehashedSearchRequest) AddPasswordQuery(query string) {
 	if dsr.ForcePlaintext {
+		query = enquoteSpaced(query)
 		dsr.buildQuery(Password.GetArgumentString(query), Password)
 		return
 	}
@@ -89,41 +90,42 @@ func (dsr *DehashedSearchRequest) AddPasswordQuery(query string) {
 }
 
 func (dsr *DehashedSearchRequest) AddVinQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Vin.GetArgumentString(query), Vin)
 }
 
 func (dsr *DehashedSearchRequest) AddLicensePlateQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(LicensePlate.GetArgumentString(query), LicensePlate)
 }
 
 func (dsr *DehashedSearchRequest) AddAddressQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Address.GetArgumentString(query), Address)
 }
 
 func (dsr *DehashedSearchRequest) AddPhoneQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Phone.GetArgumentString(query), Phone)
 }
 
 func (dsr *DehashedSearchRequest) AddSocialQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Social.GetArgumentString(query), Social)
 }
 
 func (dsr *DehashedSearchRequest) AddCryptoAddressQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(CryptoAddress.GetArgumentString(query), CryptoAddress)
 }
 
 func (dsr *DehashedSearchRequest) AddHashedPasswordQuery(query string) {
+	query = strings.TrimSpace(query)
 	dsr.buildQuery(HashedPassword.GetArgumentString(query), HashedPassword)
 }
 
 func (dsr *DehashedSearchRequest) AddNameQuery(query string) {
-	query = strings.TrimSpace(query)
+	query = enquoteSpaced(query)
 	dsr.buildQuery(Name.GetArgumentString(query), Name)
 }
 
@@ -190,4 +192,12 @@ func (dcv2 *DehashedClientV2) GetResults() sqlite.DehashedResults {
 
 func (dcv2 *DehashedClientV2) GetTotalResults() int {
 	return len(dcv2.results)
+}
+
+func enquoteSpaced(s string) string {
+	s = strings.TrimSpace(s)
+	if strings.Contains(s, " ") {
+		return fmt.Sprintf("\"%s\"", s)
+	}
+	return s
 }
