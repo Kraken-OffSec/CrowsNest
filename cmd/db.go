@@ -3,6 +3,7 @@ package cmd
 import (
 	"dehasher/internal/pretty"
 	"dehasher/internal/sqlite"
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -151,7 +152,38 @@ func tableQuery(table Table) {
 			if value == nil {
 				rowStrings[i] = " "
 			} else {
-				rowStrings[i] = fmt.Sprintf("%v", value)
+				// Check if the value is a slice or array
+				switch v := value.(type) {
+				case []string:
+					// Join string slices with commas, no brackets
+					rowStrings[i] = strings.Join(v, ", ")
+				case []interface{}:
+					// Convert interface slice to strings and join
+					strSlice := make([]string, len(v))
+					for j, item := range v {
+						if item == nil {
+							strSlice[j] = ""
+						} else {
+							strSlice[j] = fmt.Sprintf("%v", item)
+						}
+					}
+					rowStrings[i] = strings.Join(strSlice, ", ")
+				case string:
+					// Handle JSON strings that might be arrays
+					if strings.HasPrefix(v, "[") && strings.HasSuffix(v, "]") {
+						// Try to unmarshal JSON array
+						var strArray []string
+						if err := json.Unmarshal([]byte(v), &strArray); err == nil {
+							rowStrings[i] = strings.Join(strArray, ", ")
+						} else {
+							rowStrings[i] = v
+						}
+					} else {
+						rowStrings[i] = v
+					}
+				default:
+					rowStrings[i] = fmt.Sprintf("%v", v)
+				}
 			}
 		}
 		tableRows = append(tableRows, rowStrings)
@@ -207,7 +239,38 @@ func rawDBQuery() {
 			if value == nil {
 				rowStrings[i] = " "
 			} else {
-				rowStrings[i] = fmt.Sprintf("%v", value)
+				// Check if the value is a slice or array
+				switch v := value.(type) {
+				case []string:
+					// Join string slices with commas, no brackets
+					rowStrings[i] = strings.Join(v, ", ")
+				case []interface{}:
+					// Convert interface slice to strings and join
+					strSlice := make([]string, len(v))
+					for j, item := range v {
+						if item == nil {
+							strSlice[j] = ""
+						} else {
+							strSlice[j] = fmt.Sprintf("%v", item)
+						}
+					}
+					rowStrings[i] = strings.Join(strSlice, ", ")
+				case string:
+					// Handle JSON strings that might be arrays
+					if strings.HasPrefix(v, "[") && strings.HasSuffix(v, "]") {
+						// Try to unmarshal JSON array
+						var strArray []string
+						if err := json.Unmarshal([]byte(v), &strArray); err == nil {
+							rowStrings[i] = strings.Join(strArray, ", ")
+						} else {
+							rowStrings[i] = v
+						}
+					} else {
+						rowStrings[i] = v
+					}
+				default:
+					rowStrings[i] = fmt.Sprintf("%v", v)
+				}
 			}
 		}
 		tableRows = append(tableRows, rowStrings)
