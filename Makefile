@@ -1,0 +1,53 @@
+# Makefile for Dehasher
+
+# Go command
+GO=go
+
+# Binary name
+BINARY_NAME=dehasher
+
+# Build directory
+BUILD_DIR=build/bin
+
+# Platforms to build for
+PLATFORMS=linux darwin windows
+
+# Architecture to build for
+ARCHS=amd64 arm64
+
+# Version info from git tag or default
+VERSION=$(shell git describe --tags 2>/dev/null || echo "v1.0.1")
+
+.PHONY: all clean build build-all
+
+# Default target
+all: clean build-all
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
+
+# Build for current platform
+build:
+	$(GO) build -o $(BUILD_DIR)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" dehasher.go
+
+# Build for all platforms
+build-all: clean
+	@for platform in $(PLATFORMS); do \
+	    for arch in $(ARCHS); do \
+	        echo "Building for $$platform/$$arch..."; \
+	        GOOS=$$platform GOARCH=$$arch $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" dehasher.go; \
+	        if [ "$$platform" = "windows" ]; then \
+	            mv $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch.exe; \
+	        fi; \
+	    done; \
+	done
+
+# Install locally
+install: build
+	cp $(BUILD_DIR)/$(BINARY_NAME) /usr/local/bin/
+
+# Run tests
+test:
+	$(GO) test ./...
