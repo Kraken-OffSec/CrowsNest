@@ -85,20 +85,20 @@ func (dh *Dehasher) setQueries() {
 
 // Start starts the querying process
 func (dh *Dehasher) Start() {
-	fmt.Println("[*] Querying Dehashed API...")
+	fmt.Printf("[*] Querying Dehashed API...\n")
 	for i := 0; i < dh.options.MaxRequests; i++ {
-		fmt.Printf("\n\t[*] Performing Request...")
+		fmt.Printf("   [*] Performing Request...\n")
 		count, err := dh.client.Search(*dh.request)
 		if err != nil {
 			// Check if it's a DehashError
 			if dhErr, ok := err.(*DehashError); ok {
-				fmt.Printf("\n\t[!] Dehashed API Error: %s (Code: %d)", dhErr.Message, dhErr.Code)
+				fmt.Printf("   [!] Dehashed API Error: %s (Code: %d)\n", dhErr.Message, dhErr.Code)
 				zap.L().Error("dehashed_api_error",
 					zap.String("message", dhErr.Message),
 					zap.Int("code", dhErr.Code),
 				)
 			} else {
-				fmt.Printf("\n\t[!] Error performing request: %v", err)
+				fmt.Printf("   [!] Error performing request: %v\n", err)
 				zap.L().Error("request_error",
 					zap.String("message", "failed to perform request"),
 					zap.Error(err),
@@ -108,11 +108,11 @@ func (dh *Dehasher) Start() {
 		}
 
 		if count < dh.options.MaxRecords {
-			fmt.Printf("\n\t\t[+] Retrieved %d Records", count)
-			fmt.Printf("\n[-] Not Enough Entries, ending queries")
+			fmt.Printf("      [+] Retrieved %d records\n", count)
+			fmt.Printf("      [-] Not enough entries, ending queries\n")
 			break
 		} else {
-			fmt.Printf("\n\t\t[+] Retrieved %d Records", dh.options.MaxRecords)
+			fmt.Printf("      [+] Retrieved %d records\n", dh.options.MaxRecords)
 		}
 
 		dh.request.Page = dh.getNextPage()
@@ -171,7 +171,7 @@ func (dh *Dehasher) parseResults() {
 	zap.L().Info("extracting_credentials")
 	results := dh.client.GetResults()
 	creds := results.ExtractCredentials()
-	fmt.Printf("\n\t[*] Discovered %d Credentials", len(creds))
+	fmt.Printf("\n\t[+] Discovered %d Credentials", len(creds))
 	err := sqlite.StoreCreds(creds)
 	if err != nil {
 		zap.L().Error("store_creds",

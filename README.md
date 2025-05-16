@@ -1,69 +1,36 @@
-# Dehasher
-## A cli tool built for interaction with the Dehash API
+# 🚀 Dehasher
+### A CLI tool for seamless interaction with the Dehashed API
 
-<div align="center">
-    <img src="https://img.wanman.io/fUSu0/SaCUyEMe87.png/raw" style="width: 350px; height: auto" alt="Ar1ste1a" title="Ar1ste1a Offensive Security">
-</div>
+---
 
-# Features
-- Output Format Control
-- Request Limiting
-- Record Limiting
-- Regular Expression Handling
-- Exact Match Handling
-- Error Handling
-- Credential Dumping
-- Intelligent Token Usage
-- Database Path Configuration
-# Options
+## 🌟 Features
+- **Output Format Control**: JSON, YAML, XML, and TEXT support.
+- **Regex & Wildcard Matching**: Flexible query options.
+- **Local Database Storage**: Default or custom paths.
+- **Database Querying**: Raw SQL and filtered queries.
+- **Enhanced Logging**: Easy log parsing and rotation.
+- **Error Handling**: Intelligent API error management.
+- **WhoIs Lookups**: Domain, IP, MX, NS, and more.
+- **Subdomain Scanning**: Identify subdomains.
+- **Robust Logging**: Detailed logs for debugging.
+- **API Key Management**: Securely store and manage API keys.
+- **Formatted Output**: Easy to read and understand.
+- **Intuitive Database Querying**: Query for specific information.
 
-```bash-session
-usage: Dehasher [-h --help] {-k --key}  {-a --authorized-email} [-h --help]  [-m --max-records]  [-r --max-requests]  [-B --print-balance]  [-X --exact-match]  [-R --regex-match]  [-t --list-tokens]  [-o --output-file-name]  [-T --output-txt]  [-J --output-json]  [-Y --output-yaml]  [-x --output-xml]  [-U --username-query]  [-E --email-query]  [-I --ip-address-query]  [-P --password-query]  [-Q --hashed-password-query]  [-N --name-query]  [-C --creds-only]
+---
 
-Dehashed Tool
+## 📦 Installation
 
-options:
-   -h --help                                      show this help message and exit
-   -m --max-records                           Maximum amount of records to return
-   -r --max-requests                           Maximum number of requests to make
-   -B --print-balance                      Print remaining balance after requests
-   -X --exact-match                                  Use Exact Matching on fields
-   -R --regex-match                                  Use Regex Matching on fields
-   -t --list-tokens                           List the number of tokens remaining
-   -o --output-file-name                                File to output results to
-   -T --output-txt                                            Output to text file
-   -J --output-json                                           Output to JSON file
-   -Y --output-yaml                                           Output to YAML file
-   -x --output-xml                                             Output to XML file
-   -U --username-query                                             Username Query
-   -E --email-query                                                   Email Query
-   -I --ip-address-query                                         IP Address Query
-   -P --password-query                                             Password Query
-   -Q --hashed-password-query                               Hashed Password Query
-   -N --name-query                                                     Name Query
-   -C --creds-only                                        Return Credentials Only
-   -k --key                                                               API Key
-   -a --authorized-email                Email to pair with key for authentication
-   --local-db                           Use local database in current directory
-
-
-v1.0
+Clone the repository and build the tool:
+```bash
+git clone https://github.com/Ar1ste1a/Dehasher.git
+cd Dehasher
+go build dehasher.go
 ```
 
-# Sample Run
-```bash-session
--k ddq<redacted> -a ar1ste1a@<redacted> -E @example.com -C -o example_creds
-Making 3 Requests for 10000 Records (30000 Total)
-        [*] Performing Request...
-        [*] Retrieved 60 Records
-[-] Not Enough Entries, ending queries
-[+] Discovered 60 Records
-        [*] Writing entries file: example_creds.json
-                [*] Success
+<hr></hr>
 
-```
-
-# Getting Started
+## Getting Started
 
 To begin, clone the repository
 ``` bash-session
@@ -72,12 +39,25 @@ cd Dehasher
 go build dehasher.go
 ```
 
-# Database Configuration
+<hr></hr>
+
+## 🛠️ Initial Setup
+
+Dehasher requires an API key from Dehashed. Set it up with:
+```bash
+ar1ste1a@kali:~$ dehasher set-key <redacted>
+```
+
+<hr></hr>
+
+## 🗄️ Database Configuration
 
 Dehasher supports two database storage options:
 
 1. **Default Path** (default): Stores the database at `~/.local/share/Dehasher/db/dehashed.sqlite`
 2. **Local Path**: Stores the database in the current directory as `./dehasher.sqlite`
+
+The **Local Path** option allows for separate databases for different projects or engagements.
 
 To configure the database location:
 
@@ -89,61 +69,207 @@ To configure the database location:
 ./dehasher set-local-db false
 ```
 
-You can also specify the database location when running commands:
+<hr></hr>
 
-```bash
-# Use local database for this command only
-./dehasher -k YOUR_API_KEY -a YOUR_EMAIL -E @example.com --local-db
-```
+## 🔍 Crafting Queries
 
-# Crafting a query
-
-## Simple Query
+### Simple Query
+Dehasher can be used simply for example to query for credentials matching a given email domain.
 ``` go
 # Provide credentials for emails matching @target.com
 dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -E @target.com
 ```
 
-## Simple Credentials Query
+### Simple Credentials Query
+Dehasher can also be used to return only credentials for a given query.
 ``` go
 # Provide credentials for emails matching @target.com
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -E @target.com -C
+dehasher -E @target.com -C
 ```
 
-## Simple Query Returning Balance
+### Multiple Match Query
+Dehasher is capable of handling multiple queries for the same field.  
+This is useful for when you want to search for multiple domains, or multiple usernames.
 ``` go
-# Provide credentials for emails matching @target.com
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -E @target.com -C -B
+# Provide credentials for emails matching @target.com and @target2.com
+dehasher -E @target.com,@target2.com -C
 ```
 
-## Regex Query
+### Wildcard Query
+Dehasher is capable of handling wildcard queries.  
+A wildcard query cannot begin with a wildcard.  
+This is a limitation of the Dehashed API.
+An asterisk can be used to denote multiple characters, and a question mark can be used to denote a single character.
+``` go
+# Provide credentials for emails matching @target.com and @target2.com
+dehasher -E @target?.com -C -W
+```
+
+
+### Regex Query
+Dehasher is capable of handling regex queries.  
+Simply denote regex queries with the `-R` flag.
+Place all regex queries in quotes with the corresponding query flag in single quotes.
 ``` go
 # Return matches for emails matching this given regex query
-# -R e: Specify the '-E' field as a regex entry
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -E '[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?@target.com' -C -B -R e
+dehasher -R -e '[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?@target.com'
 ```
 
-## Exact Match Query
-``` go
-# Return matches for usernames exactly matching "admin"
-# -X u: Specify the '-U' field as an exact match entry
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -C -B -U admin -X u
-```
-
-## Output Text (default JSON)
+### Output Text (default JSON)
+Dehasher is capable of handling output formats.  
+The default output format is JSON.  
+To change the output format, use the `-f` flag.  
+Dehasher currently supports JSON, YAML, XML, and TEXT output formats.
 ``` go
 # Return matches for usernames exactly matching "admin" and write to text file 'admins_file.txt'
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -C -B -U admin -X u -T -o admins_file
+dehasher -U admin -o admins_file -f txt
 ```
 
-## Output YAML
-``` go
-# Return matches for usernames exactly matching "admin" and write to yaml file 'admins_file.yaml'
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -C -B -U admin -X u -Y -o admins_file
+<hr></hr>
+
+## 🌐 WhoIs Lookups
+Dehasher supports WHOIS lookups, history searches, reverse WHOIS searches, IP lookups, MX lookups, NS lookups, and subdomain scans.
+The WhoIs Lookups require a separate API Credit from the Dehashed API.
+
+### Domain Lookup
+```bash
+# Perform a WHOIS lookup for example.com
+dehasher whois -d example.com
 ```
 
-## Output XML
-``` go
-# Return matches for usernames exactly matching "admin" and write to xml file 'admins_file.xml'
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -C -B -U admin -X u -x -o admins_file
+### History Lookup
+History Lookups require 25 credits. 
+This is a Dehashed API limitation.
+```bash
+# Perform a WHOIS history search for example.com
+dehasher whois -d example.com -H
 ```
+
+### Reverse WHOIS Lookup
+```bash
+# Perform a reverse WHOIS lookup for example.com
+dehasher whois -I example.com
+```
+
+### IP Lookup
+```bash
+# Perform a reverse IP lookup for 8.8.8.8
+dehasher whois -i 8.8.8.8
+```
+
+### MX Lookup
+```bash
+# Perform a reverse MX lookup for google.com
+dehasher whois -m google.com
+```
+### NS Lookup
+```bash
+# Perform a reverse NS lookup for google.com
+dehasher whois -n google.com
+```
+### Subdomain Scan
+```bash
+# Perform a WHOIS subdomain scan for google.com
+dehasher whois -d google.com -s
+```
+
+<hr></hr>
+
+## 📊 Database Querying
+Dehasher stores query results in a local database.  
+This database can be queried for previous results.
+This database also includes WhoIs Information and Subdomain Scan results, but does **not** include historical lookups.
+
+## Simple Query
+![Alt text](./.img/simple_query.png "Simple Query")
+
+Dehasher supports querying the database for previous results.  
+This is useful for when you want to query for specific information.
+```bash
+# Query the database for all results containing the word 'admin' in the username
+dehasher query -t results -q "username LIKE '%admin%'"
+```
+
+
+## Raw SQL Queries
+![Alt text](./.img/raw_query.png "Raw Query")
+
+Dehasher also supports raw SQL queries.  This is useful for when you want to query for specific information.
+```bash
+# Query the database for all results containing the word 'admin' in the username
+dehasher query -r "SELECT * FROM results WHERE username LIKE '%admin%'"
+```
+
+## Query Options
+Dehasher supports a number of query options.  These options can be used to filter the results of a query.
+```bash
+# Query the database for all results containing the word 'admin' in the username
+dehasher query -t results -q "username LIKE '%admin%'" -n username,email,password
+```
+
+## Listing Tables and Columns
+Dehasher supports listing all available tables and columns.  
+This is useful for when you want to query for specific information.
+```bash
+# List all available tables and columns
+dehasher query -a
+```
+
+The current tables available for query are:
+- results
+- creds
+- whois
+- subdomains
+- history
+- runs
+
+---
+
+# Exporting Results
+Dehasher supports exporting results to a file.  
+This is useful for when you want to requery for specific information without touching the Dehashed API.
+The export subcommand supports all the same options as the query subcommand.
+The export subcommand also supports file naming and output format control.
+```bash
+# Export all results containing the word 'admin' in the username to a text file
+dehasher export -t results -q "username LIKE '%admin%'" -o admins_file -f txt
+```
+
+## 🐛 Debugging
+
+Dehasher uses the `zap` logging library for logging.  The logs are stored in `~/.local/share/Dehasher/logs`.
+The logs can be easily queried from the Dehasher CLI.
+```bash
+# Show the last 10 logs
+dehasher logs -l 10
+
+# Show logs from the last 24 hours
+dehasher logs -s "24 hours ago"
+
+# Show logs from the last 24 hours with a severity of error or fatal
+dehasher logs -s "24 hours ago" -v error,fatal
+```
+## 🎉 Sample Run
+```bash
+ar1ste1a@kali:~$ dehasher api -D <redacted>.com -o <redacted> -f json
+Making 3 Requests for 10000 Records (30000 Total)
+[*] Querying Dehashed API...
+	[*] Performing Request...
+		[+] Retrieved 2740 Records
+        [-] Not Enough Entries, ending queries
+	[+] Discovered 10 Credentials
+	[*] Writing entries to file: <redacted>.json
+		[*] Success
+[*] Completing Process
+```
+
+## 🤝 Contributing
+Contributions are welcome! Submit a pull request to help improve Dehasher.
+
+
+
+<div align="center">
+    <img src="https://img.wanman.io/fUSu0/jUtovIFE52.png/raw" style="width: 350px; height: auto" alt="Ar1ste1a" title="Ar1ste1a Offensive Security">
+</div>
+
+## **Release The Kraken**
