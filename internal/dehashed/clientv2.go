@@ -1,8 +1,9 @@
-package query
+package dehashed
 
 import (
 	"bytes"
 	"crypto/sha256"
+	"dehasher/internal/debug"
 	"dehasher/internal/sqlite"
 	"encoding/hex"
 	"encoding/json"
@@ -38,6 +39,7 @@ func (dp DehashedParameter) GetArgumentString(arg string) string {
 
 type DehashedSearchRequest struct {
 	ForcePlaintext bool   `json:"-"`
+	Debug          bool   `json:"-"`
 	Page           int    `json:"page"`
 	Query          string `json:"query"`
 	Size           int    `json:"size"`
@@ -46,42 +48,60 @@ type DehashedSearchRequest struct {
 	DeDupe         bool   `json:"de_dupe"`
 }
 
-func NewDehashedSearchRequest(page, size int, wildcard, regex, forcePlaintext bool) *DehashedSearchRequest {
-	return &DehashedSearchRequest{Page: page, Query: "", Size: size, Wildcard: wildcard, Regex: regex, DeDupe: true, ForcePlaintext: forcePlaintext}
+func NewDehashedSearchRequest(page, size int, wildcard, regex, forcePlaintext, debug bool) *DehashedSearchRequest {
+	return &DehashedSearchRequest{Page: page, Query: "", Size: size, Wildcard: wildcard, Regex: regex, DeDupe: true, ForcePlaintext: forcePlaintext, Debug: debug}
 }
 
-func (dsr *DehashedSearchRequest) buildQuery(query string, param DehashedParameter) {
+func (dsr *DehashedSearchRequest) buildQuery(query string) {
+	if dsr.Debug {
+		debug.PrintInfo(fmt.Sprintf("building query: %s", query))
+	}
+	// Ensure query is properly formatted
+	query = strings.TrimSpace(query)
+
+	// For regex queries, we need to ensure the regex pattern is properly escaped
+	// and not enquoted, as that would break the regex pattern
+	if dsr.Regex && !strings.HasPrefix(query, "\"") && !strings.HasSuffix(query, "\"") {
+		// Don't add extra quotes for regex patterns
+	} else if strings.Contains(query, " ") && !strings.HasPrefix(query, "\"") {
+		query = fmt.Sprintf("\"%s\"", query)
+	}
+
 	if len(dsr.Query) > 0 {
-		dsr.Query = fmt.Sprintf("%s&%s", strings.TrimSpace(dsr.Query), strings.TrimSpace(query))
+		dsr.Query = fmt.Sprintf("%s&%s", strings.TrimSpace(dsr.Query), query)
 	} else {
 		dsr.Query = query
+	}
+
+	if dsr.Debug {
+		debug.PrintInfo(fmt.Sprintf("query built: %s", dsr.Query))
 	}
 }
 
 func (dsr *DehashedSearchRequest) AddUsernameQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Username.GetArgumentString(query), Username)
+	dsr.buildQuery(Username.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddEmailQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Email.GetArgumentString(query), Email)
+	dsr.buildQuery(Email.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddIpAddressQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(IpAddress.GetArgumentString(query), IpAddress)
+	dsr.buildQuery(IpAddress.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddDomainQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Domain.GetArgumentString(query), Domain)
+	dsr.buildQuery(Domain.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddPasswordQuery(query string) {
 	if dsr.ForcePlaintext {
 		query = enquoteSpaced(query)
-		dsr.buildQuery(Password.GetArgumentString(query), Password)
+		dsr.buildQuery(Password.GetArgumentString(query))
 		return
 	}
 	hash := sha256.Sum256([]byte(query))
@@ -91,89 +111,126 @@ func (dsr *DehashedSearchRequest) AddPasswordQuery(query string) {
 
 func (dsr *DehashedSearchRequest) AddVinQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Vin.GetArgumentString(query), Vin)
+	dsr.buildQuery(Vin.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddLicensePlateQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(LicensePlate.GetArgumentString(query), LicensePlate)
+	dsr.buildQuery(LicensePlate.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddAddressQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Address.GetArgumentString(query), Address)
+	dsr.buildQuery(Address.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddPhoneQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Phone.GetArgumentString(query), Phone)
+	dsr.buildQuery(Phone.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddSocialQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Social.GetArgumentString(query), Social)
+	dsr.buildQuery(Social.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddCryptoAddressQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(CryptoAddress.GetArgumentString(query), CryptoAddress)
+	dsr.buildQuery(CryptoAddress.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddHashedPasswordQuery(query string) {
 	query = strings.TrimSpace(query)
-	dsr.buildQuery(HashedPassword.GetArgumentString(query), HashedPassword)
+	dsr.buildQuery(HashedPassword.GetArgumentString(query))
 }
 
 func (dsr *DehashedSearchRequest) AddNameQuery(query string) {
 	query = enquoteSpaced(query)
-	dsr.buildQuery(Name.GetArgumentString(query), Name)
+	dsr.buildQuery(Name.GetArgumentString(query))
 }
 
 type DehashedClientV2 struct {
 	apiKey  string
 	results []sqlite.Result
+	debug   bool
 }
 
-func NewDehashedClientV2(apiKey string) *DehashedClientV2 {
-	return &DehashedClientV2{apiKey: apiKey}
+func NewDehashedClientV2(apiKey string, debug bool) *DehashedClientV2 {
+	return &DehashedClientV2{apiKey: apiKey, debug: debug}
 }
 
-func (dcv2 *DehashedClientV2) Search(searchRequest DehashedSearchRequest) (int, error) {
+func (dcv2 *DehashedClientV2) Search(searchRequest DehashedSearchRequest) (int, int, error) {
+	if dcv2.debug {
+		debug.PrintInfo("preparing search request")
+		zap.L().Info("v2_search_debug",
+			zap.String("message", "preparing search request"),
+		)
+	}
 	reqBody, _ := json.Marshal(searchRequest)
+
+	if dcv2.debug {
+		j := string(reqBody)
+		jReq := fmt.Sprintf("Request Body: %s\n", j)
+		debug.PrintJson(jReq)
+		zap.L().Info("v2_search_debug",
+			zap.String("message", jReq),
+			zap.String("body", j),
+		)
+	}
+
 	req, err := http.NewRequest("POST", "https://api.dehashed.com/v2/search", bytes.NewReader(reqBody))
 	if err != nil {
-		return -1, err
+		return -1, -1, err
 	}
+
+	if dcv2.debug {
+		debug.PrintInfo("setting headers")
+		zap.L().Info("v2_search_debug",
+			zap.String("message", "setting headers"),
+		)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Dehashed-Api-Key", dcv2.apiKey)
+
+	if dcv2.debug {
+		headers := req.Header.Clone()
+		h := fmt.Sprintf("Headers: %v\n", headers)
+		debug.PrintJson(h)
+		zap.L().Info("v2_search_debug",
+			zap.String("message", h),
+			zap.String("headers", fmt.Sprintf("%v", headers)),
+		)
+
+		debug.PrintInfo("performing request")
+		zap.L().Info("v2_search_debug",
+			zap.String("message", "performing request"),
+		)
+	}
+
 	res, err := http.DefaultClient.Do(req)
 	if res != nil {
 		defer res.Body.Close()
 	}
 	if err != nil {
+		if dcv2.debug {
+			debug.PrintInfo("failed to perform request")
+			debug.PrintError(err)
+		}
 		zap.L().Error("v2_search",
 			zap.String("message", "failed to perform request"),
 			zap.Error(err),
 		)
-		return -1, err
+		return -1, -1, err
 	}
 	if res == nil {
+		if dcv2.debug {
+			debug.PrintInfo("response was nil")
+		}
 		zap.L().Error("v2_search",
 			zap.String("message", "response was nil"),
 		)
-		return -1, errors.New("response was nil")
-	}
-
-	// Check for HTTP status code errors
-	if res.StatusCode != 200 {
-		dhErr := GetDehashedError(res.StatusCode)
-		fmt.Printf("[%d] API Error message: %s\n", res.StatusCode, dhErr.Error())
-		zap.L().Error("v2_search",
-			zap.String("message", "received error status code"),
-			zap.Int("status_code", res.StatusCode),
-			zap.String("error", dhErr.Error()),
-		)
-		return -1, &dhErr
+		return -1, -1, errors.New("response was nil")
 	}
 
 	b, err := io.ReadAll(res.Body)
@@ -182,21 +239,50 @@ func (dcv2 *DehashedClientV2) Search(searchRequest DehashedSearchRequest) (int, 
 			zap.String("message", "failed to read response body"),
 			zap.Error(err),
 		)
-		return -1, err
+		return -1, -1, err
+	}
+
+	// Check for HTTP status code errors
+	if res.StatusCode != 200 {
+		if dcv2.debug {
+			debug.PrintInfo("received error status code")
+			debug.PrintJson(fmt.Sprintf("Status Code: %d\n", res.StatusCode))
+			debug.PrintJson(fmt.Sprintf("Body: %s\n", string(b[:])))
+		}
+
+		dhErr := GetDehashedError(res.StatusCode)
+		zap.L().Error("v2_search",
+			zap.String("message", "received error status code"),
+			zap.Int("status_code", res.StatusCode),
+			zap.String("error", dhErr.Error()),
+			zap.String("body_error", string(b)),
+		)
+		return -1, -1, &dhErr
 	}
 
 	var responseResults sqlite.DehashedResponse
 	err = json.Unmarshal(b, &responseResults)
 	if err != nil {
+		if dcv2.debug {
+			debug.PrintInfo("failed to unmarshal response body")
+			debug.PrintError(err)
+		}
 		zap.L().Error("v2_search",
 			zap.String("message", "failed to unmarshal response body"),
 			zap.Error(err),
 		)
-		return -1, err
+		return -1, -1, err
+	}
+
+	if dcv2.debug {
+		debug.PrintInfo("appending results")
+		debug.PrintJson(fmt.Sprintf("Total Results: %d\n", responseResults.TotalResults))
+		debug.PrintJson(fmt.Sprintf("Balance: %d\n", responseResults.Balance))
+		debug.PrintJson(fmt.Sprintf("Entries: %d\n", len(responseResults.Entries)))
 	}
 
 	dcv2.results = append(dcv2.results, responseResults.Entries...)
-	return responseResults.TotalResults, nil
+	return responseResults.TotalResults, responseResults.Balance, nil
 }
 
 func (dcv2 *DehashedClientV2) GetResults() sqlite.DehashedResults {

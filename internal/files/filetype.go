@@ -7,6 +7,7 @@ const (
 	XML
 	YAML
 	TEXT
+	UNKNOWN
 )
 
 func GetFileType(filetype string) FileType {

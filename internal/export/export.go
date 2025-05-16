@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 )
 
 func WriteCredsToFile(creds []sqlite.Creds, outputFile string, fileType files.FileType) error {
@@ -118,6 +119,124 @@ func WriteQueryResultsToFile(results []map[string]interface{}, outputFile string
 				rowStrings = append(rowStrings, fmt.Sprintf("%s: %s", k, valueStr))
 			}
 			outStrings = append(outStrings, strings.Join(rowStrings, "\n")+"\n\n")
+		}
+		data = []byte(strings.Join(outStrings, ""))
+	default:
+		return errors.New("unsupported file type")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	filePath := fmt.Sprintf("%s.%s", outputFile, fileType.String())
+	return os.WriteFile(filePath, data, 0644)
+}
+
+func WriteWhoIsHistoryToFile(results []sqlite.HistoryRecord, outputFile string, fileType files.FileType) error {
+	var data []byte
+	var err error
+
+	switch fileType {
+	case files.JSON:
+		data, err = json.MarshalIndent(results, "", "  ")
+	case files.XML:
+		data, err = xml.MarshalIndent(results, "", "  ")
+	case files.YAML:
+		data, err = yaml.Marshal(results)
+	case files.TEXT:
+		var outStrings []string
+		for _, r := range results {
+			outStrings = append(outStrings, r.String()+"\n\n")
+		}
+		data = []byte(strings.Join(outStrings, ""))
+	default:
+		return errors.New("unsupported file type")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	filePath := fmt.Sprintf("%s.%s", outputFile, fileType.String())
+	return os.WriteFile(filePath, data, 0644)
+}
+
+func WriteWhoIsRecordToFile(record sqlite.WhoisRecord, outputFile string, fileType files.FileType) error {
+	var data []byte
+	var err error
+
+	switch fileType {
+	case files.JSON:
+		data, err = json.MarshalIndent(record, "", "  ")
+	case files.XML:
+		data, err = xml.MarshalIndent(record, "", "  ")
+	case files.YAML:
+		data, err = yaml.Marshal(record)
+	case files.TEXT:
+		data = []byte(record.String())
+	default:
+		return errors.New("unsupported file type")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	filePath := fmt.Sprintf("%s.%s", outputFile, fileType.String())
+	return os.WriteFile(filePath, data, 0644)
+}
+
+func WriteSubdomainsToFile(records []sqlite.SubdomainRecord, outputFile string, fileType files.FileType) error {
+	var data []byte
+	var err error
+
+	switch fileType {
+	case files.JSON:
+		data, err = json.MarshalIndent(records, "", "  ")
+	case files.XML:
+		data, err = xml.MarshalIndent(records, "", "  ")
+	case files.YAML:
+		data, err = yaml.Marshal(records)
+	case files.TEXT:
+		var outStrings []string
+		for _, r := range records {
+			out := fmt.Sprintf(
+				"Domain: %s\nFirst Seen: %s\nLast Seen: %s\n\n",
+				r.Domain, time.Unix(r.FirstSeen, 0).String(), time.Unix(r.LastSeen, 0).String())
+			outStrings = append(outStrings, out)
+		}
+		data = []byte(strings.Join(outStrings, ""))
+	default:
+		return errors.New("unsupported file type")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	filePath := fmt.Sprintf("%s.%s", outputFile, fileType.String())
+	return os.WriteFile(filePath, data, 0644)
+}
+
+func WriteIPLookupToFile(records []sqlite.LookupResult, outputFile string, fileType files.FileType) error {
+	var data []byte
+	var err error
+
+	switch fileType {
+	case files.JSON:
+		data, err = json.MarshalIndent(records, "", "  ")
+	case files.XML:
+		data, err = xml.MarshalIndent(records, "", "  ")
+	case files.YAML:
+		data, err = yaml.Marshal(records)
+	case files.TEXT:
+		var outStrings []string
+		for _, r := range records {
+			out := fmt.Sprintf(
+				"Name: %s\nSearch Term: %s\nFirst Seen: %s\nLast Visit: %s\nType: %s\n\n",
+				r.Name, r.SearchTerm, time.Unix(r.FirstSeen, 0).String(), time.Unix(r.LastVisit, 0).String(), r.Type)
+			outStrings = append(outStrings, out)
 		}
 		data = []byte(strings.Join(outStrings, ""))
 	default:

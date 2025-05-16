@@ -176,7 +176,7 @@ func QueryRuns(limit, lastXRuns int, startDate, endDate time.Time, containsQuery
 
 	// Apply query filter if provided
 	if containsQuery != "" {
-		// Search in all query fields
+		// SearchTerm in all query fields
 		query = query.Where(
 			"username_query LIKE ? OR "+
 				"email_query LIKE ? OR "+
@@ -238,7 +238,7 @@ func GetRunsCount(lastXRuns int, startDate, endDate time.Time, containsQuery str
 
 	// Apply query filter if provided
 	if containsQuery != "" {
-		// Search in all query fields
+		// SearchTerm in all query fields
 		query = query.Where(
 			"username_query LIKE ? OR "+
 				"email_query LIKE ? OR "+

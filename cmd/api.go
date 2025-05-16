@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"dehasher/internal/badger"
-	"dehasher/internal/query"
+	"dehasher/internal/dehashed"
 	"dehasher/internal/sqlite"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -12,7 +12,7 @@ func init() {
 	// Add query command to root command
 	rootCmd.AddCommand(apiCmd)
 
-	// Add flags specific to query command
+	// Add flags specific to api command
 	apiCmd.Flags().IntVarP(&maxRecords, "max-records", "m", 30000, "Maximum amount of records to return")
 	apiCmd.Flags().IntVarP(&maxRequests, "max-requests", "r", -1, "Maximum number of requests to make")
 	apiCmd.Flags().IntVarP(&startingPage, "starting-page", "s", 1, "Starting page for requests")
@@ -36,7 +36,7 @@ func init() {
 	apiCmd.Flags().StringVarP(&hashQuery, "hash", "Q", "", "Hashed password query")
 	apiCmd.Flags().StringVarP(&nameQuery, "name", "N", "", "Name query")
 
-	// Add mutually exclusive flags to exact match and regex match
+	// Add mutually exclusive flags to wildcard match and regex match
 	apiCmd.MarkFlagsMutuallyExclusive("regex-match", "wildcard-match")
 }
 
@@ -103,10 +103,11 @@ var (
 				wildcardMatch,
 				printBalance,
 				credsOnly,
+				debugGlobal,
 			)
 
 			// Create new Dehasher
-			dehasher := query.NewDehasher(queryOptions)
+			dehasher := dehashed.NewDehasher(queryOptions)
 			dehasher.SetClientCredentials(
 				key,
 			)

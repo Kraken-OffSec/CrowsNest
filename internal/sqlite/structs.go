@@ -67,13 +67,14 @@ type QueryOptions struct {
 	CryptoAddressQuery string         `json:"crypto_address_query"`
 	PrintBalance       bool           `json:"print_balance"`
 	CredsOnly          bool           `json:"creds_only"`
+	Debug              bool           `json:"debug"`
 }
 
 func (QueryOptions) TableName() string {
 	return "query_options"
 }
 
-func NewQueryOptions(maxRecords, maxRequests, startingPage int, outputFormat, outputFile, usernameQuery, emailQuery, ipQuery, passQuery, hashQuery, nameQuery, domainQuery, vinQuery, licensePlateQuery, addressQuery, phoneQuery, socialQuery, cryptoAddressQuery string, regexMatch, wildcardMatch, printBalance, credsOnly bool) *QueryOptions {
+func NewQueryOptions(maxRecords, maxRequests, startingPage int, outputFormat, outputFile, usernameQuery, emailQuery, ipQuery, passQuery, hashQuery, nameQuery, domainQuery, vinQuery, licensePlateQuery, addressQuery, phoneQuery, socialQuery, cryptoAddressQuery string, regexMatch, wildcardMatch, printBalance, credsOnly, debug bool) *QueryOptions {
 	return &QueryOptions{
 		MaxRecords:         maxRecords,
 		MaxRequests:        maxRequests,
@@ -97,14 +98,15 @@ func NewQueryOptions(maxRecords, maxRequests, startingPage int, outputFormat, ou
 		PhoneQuery:         phoneQuery,
 		SocialQuery:        socialQuery,
 		CryptoAddressQuery: cryptoAddressQuery,
+		Debug:              debug,
 	}
 }
 
 type Creds struct {
 	gorm.Model
-	Email    string `json:"email" yaml:"email" xml:"email"`
-	Username string `json:"username" yaml:"username" xml:"username"`
-	Password string `json:"password" yaml:"password" xml:"password"`
+	Email    string `json:"email" yaml:"email" xml:"email" gorm:"uniqueIndex:idx_email_username_password"`
+	Username string `json:"username" yaml:"username" xml:"username" gorm:"uniqueIndex:idx_email_username_password"`
+	Password string `json:"password" yaml:"password" xml:"password" gorm:"uniqueIndex:idx_email_username_password"`
 }
 
 func (Creds) TableName() string {

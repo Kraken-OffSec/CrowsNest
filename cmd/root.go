@@ -11,6 +11,7 @@ import (
 
 var (
 	// Global Flags
+	debugGlobal bool
 
 	// rootCmd is the base command for the CLI.
 	rootCmd = &cobra.Command{
@@ -58,14 +59,11 @@ func Execute() {
 }
 
 func init() {
-	//// Attempt to retrieve the useLocalDB
-	//useLocalDatabase := badger.GetUseLocalDB()
-
 	// Hide the default help command
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
-	//// Add global flags
-	//rootCmd.PersistentFlags().BoolVar(&useLocalDatabase, "local-db", useLocalDatabase, "Use local database in current directory instead of default path")
+	// Add global flags
+	rootCmd.PersistentFlags().BoolVar(&debugGlobal, "debug", false, "Show debugGlobal information")
 
 	// Add subcommands
 	rootCmd.AddCommand(setKeyCmd)

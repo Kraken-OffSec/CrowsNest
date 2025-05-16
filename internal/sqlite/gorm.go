@@ -51,7 +51,7 @@ func InitDB(dbPath string) (*gorm.DB, error) {
 	}
 
 	// Auto migrate your models
-	err = db.AutoMigrate(&Result{}, &Creds{}, QueryOptions{}, Creds{}, WhoisRecord{}, SubdomainRecord{}, HistoryRecord{})
+	err = db.AutoMigrate(&Result{}, &Creds{}, &QueryOptions{}, &Creds{}, &WhoisRecord{}, &SubdomainRecord{}, &HistoryRecord{}, &LookupResult{})
 	if err != nil {
 		zap.L().Error("Failed to migrate database", zap.Error(err))
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
@@ -163,7 +163,7 @@ func StoreWhoisRecord(whoisRecord WhoisRecord) error {
 	return nil
 }
 
-func StoreSubdomainRecord(subdomainRecords []SubdomainRecord) error {
+func StoreSubdomainRecords(subdomainRecords []SubdomainRecord) error {
 	if len(subdomainRecords) == 0 {
 		return nil
 	}
@@ -217,6 +217,37 @@ func StoreHistoryRecord(historyRecords []HistoryRecord) error {
 		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
 		if err != nil {
 			zap.L().Warn("Error storing some history records", zap.Error(err))
+			lastErr = err
+			// Continue with next batch despite error
+		}
+	}
+
+	return lastErr
+}
+
+func StoreIPLookup(ipLookup []LookupResult) error {
+	if len(ipLookup) == 0 {
+		return nil
+	}
+
+	zap.L().Info("Storing IP lookup records", zap.Int("count", len(ipLookup)))
+	db := GetDB()
+
+	// Use batch insert with conflict handling
+	const batchSize = 100
+	var lastErr error
+
+	for i := 0; i < len(ipLookup); i += batchSize {
+		end := i + batchSize
+		if end > len(ipLookup) {
+			end = len(ipLookup)
+		}
+
+		batch := ipLookup[i:end]
+		// Use Clauses with OnConflict DoNothing to skip conflicts
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
+		if err != nil {
+			zap.L().Warn("Error storing some IP lookup records", zap.Error(err))
 			lastErr = err
 			// Continue with next batch despite error
 		}

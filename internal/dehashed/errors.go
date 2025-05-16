@@ -1,4 +1,4 @@
-package query
+package dehashed
 
 type DehashError struct {
 	Message string

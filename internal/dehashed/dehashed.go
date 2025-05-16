@@ -1,6 +1,7 @@
-package query
+package dehashed
 
 import (
+	"dehasher/internal/debug"
 	"dehasher/internal/export"
 	"dehasher/internal/sqlite"
 	"encoding/json"
@@ -13,6 +14,8 @@ import (
 type Dehasher struct {
 	options  sqlite.QueryOptions
 	nextPage int
+	debug    bool
+	balance  int
 	request  *DehashedSearchRequest
 	client   *DehashedClientV2
 }
@@ -22,19 +25,24 @@ func NewDehasher(options *sqlite.QueryOptions) *Dehasher {
 	dh := &Dehasher{
 		options:  *options,
 		nextPage: options.StartingPage + 1,
+		debug:    options.Debug,
+		balance:  0,
 	}
 	dh.setQueries()
-	dh.request = NewDehashedSearchRequest(dh.options.StartingPage, dh.options.MaxRecords, dh.options.WildcardMatch, dh.options.RegexMatch, false)
+	dh.request = NewDehashedSearchRequest(dh.options.StartingPage, dh.options.MaxRecords, dh.options.WildcardMatch, dh.options.RegexMatch, false, options.Debug)
 	dh.buildRequest()
 	return dh
 }
 
 // SetClientCredentials sets the client credentials for the dehasher
 func (dh *Dehasher) SetClientCredentials(key string) {
-	dh.client = NewDehashedClientV2(key)
+	dh.client = NewDehashedClientV2(key, dh.debug)
 }
 
 func (dh *Dehasher) getNextPage() int {
+	if dh.debug {
+		debug.PrintInfo(fmt.Sprintf("getting next page: %d", dh.nextPage))
+	}
 	nextPage := dh.nextPage
 	dh.nextPage += 1
 	return nextPage
@@ -43,6 +51,10 @@ func (dh *Dehasher) getNextPage() int {
 // setQueries sets the number of queries to make based on the number of records and requests
 func (dh *Dehasher) setQueries() {
 	var numQueries int
+
+	if dh.debug {
+		debug.PrintInfo("setting queries")
+	}
 
 	switch {
 	case dh.options.MaxRequests == 0:
@@ -80,6 +92,12 @@ func (dh *Dehasher) setQueries() {
 	}
 
 	dh.options.MaxRequests = numQueries
+
+	if dh.debug {
+		debug.PrintInfo(fmt.Sprintf("setting max requests: %d", numQueries))
+		debug.PrintInfo(fmt.Sprintf("setting max records: %d", dh.options.MaxRecords))
+	}
+
 	fmt.Printf("Making %d Requests for %d Records (%d Total)\n", dh.options.MaxRequests, dh.options.MaxRecords, dh.options.MaxRequests*dh.options.MaxRecords)
 }
 
@@ -88,11 +106,16 @@ func (dh *Dehasher) Start() {
 	fmt.Printf("[*] Querying Dehashed API...\n")
 	for i := 0; i < dh.options.MaxRequests; i++ {
 		fmt.Printf("   [*] Performing Request...\n")
-		count, err := dh.client.Search(*dh.request)
+		count, balance, err := dh.client.Search(*dh.request)
 		if err != nil {
+			if dh.debug {
+				debug.PrintInfo("error performing request")
+				debug.PrintError(err)
+			}
+
 			// Check if it's a DehashError
 			if dhErr, ok := err.(*DehashError); ok {
-				fmt.Printf("   [!] Dehashed API Error: %s (Code: %d)\n", dhErr.Message, dhErr.Code)
+				fmt.Printf("      [!] Dehashed API Error: %s (Code: %d)\n", dhErr.Message, dhErr.Code)
 				zap.L().Error("dehashed_api_error",
 					zap.String("message", dhErr.Message),
 					zap.Int("code", dhErr.Code),
@@ -104,8 +127,23 @@ func (dh *Dehasher) Start() {
 					zap.Error(err),
 				)
 			}
+
+			if len(dh.client.results) > 0 {
+				fmt.Printf("   [!] Partial results retrieved. Storing Results...\n")
+				err := sqlite.StoreResults(dh.client.GetResults())
+				if err != nil {
+					zap.L().Error("store_results",
+						zap.String("message", "failed to store results"),
+						zap.Error(err),
+					)
+					fmt.Printf("   [!] Error storing results: %v\n", err)
+				}
+			}
+			dh.parseResults()
 			os.Exit(-1)
 		}
+
+		dh.balance = balance
 
 		if count < dh.options.MaxRecords {
 			fmt.Printf("      [+] Retrieved %d records\n", count)
@@ -113,6 +151,10 @@ func (dh *Dehasher) Start() {
 			break
 		} else {
 			fmt.Printf("      [+] Retrieved %d records\n", dh.options.MaxRecords)
+		}
+
+		if dh.options.PrintBalance {
+			fmt.Printf("      [*] Balance: %d\n", balance)
 		}
 
 		dh.request.Page = dh.getNextPage()
