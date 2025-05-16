@@ -77,14 +77,14 @@ To configure the database location:
 Dehasher can be used simply for example to query for credentials matching a given email domain.
 ``` go
 # Provide credentials for emails matching @target.com
-dehasher -D @target.com -C
+dehasher api -D @target.com -C
 ```
 
 ### Simple Credentials Query
 Dehasher can also be used to return only credentials for a given query.
 ``` go
 # Provide credentials for emails matching @target.com
-dehasher -E @target.com -C
+dehasher api -E @target.com -C
 ```
 
 ### Multiple Match Query
@@ -92,7 +92,7 @@ Dehasher is capable of handling multiple queries for the same field.
 This is useful for when you want to search for multiple domains, or multiple usernames.
 ``` go
 # Provide credentials for emails matching @target.com and @target2.com
-dehasher -E @target.com,@target2.com -C
+dehasher api -E @target.com,@target2.com -C
 ```
 
 ### Wildcard Query
@@ -102,7 +102,7 @@ This is a limitation of the Dehashed API.
 An asterisk can be used to denote multiple characters, and a question mark can be used to denote a single character.
 ``` go
 # Provide credentials for emails matching @target.com and @target2.com
-dehasher -E @target?.com -C -W
+dehasher api -E @target?.com -C -W
 ```
 
 
@@ -112,7 +112,7 @@ Simply denote regex queries with the `-R` flag.
 Place all regex queries in quotes with the corresponding query flag in single quotes.
 ``` go
 # Return matches for emails matching this given regex query
-dehasher -R -e '[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?@target.com'
+dehasher api -R -e '[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?@target.com'
 ```
 
 ### Output Text (default JSON)
@@ -122,7 +122,7 @@ To change the output format, use the `-f` flag.
 Dehasher currently supports JSON, YAML, XML, and TEXT output formats.
 ``` go
 # Return matches for usernames exactly matching "admin" and write to text file 'admins_file.txt'
-dehasher -U admin -o admins_file -f txt
+dehasher api -U admin -o admins_file -f txt
 ```
 
 <hr></hr>
