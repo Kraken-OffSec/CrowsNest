@@ -238,11 +238,17 @@ dehasher query -a
 
 The current tables available for query are:
 - results
+  - Results from a dehashed query
 - creds
+  - Credentials parsed from dehashed results
 - whois
+  - Results from a whois record lookup
 - subdomains
-- history
+  - Subdomains discovered in a whois subdomain scan 
 - runs
+  - Previous query runs to the dehashed API
+- lookup 
+  - Results of any Whois NS, MX, or IP lookup
 
 ---
 
