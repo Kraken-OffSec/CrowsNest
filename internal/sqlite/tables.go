@@ -11,6 +11,7 @@ const (
 	WhoIsTable
 	SubdomainsTable
 	HistoryTable
+	LookupTable
 	UnknownTable
 )
 
@@ -28,6 +29,8 @@ func GetTable(userInput string) Table {
 		return SubdomainsTable
 	case "history":
 		return HistoryTable
+	case "lookup":
+		return LookupTable
 	default:
 		return UnknownTable
 	}
@@ -47,6 +50,8 @@ func (t Table) Object() interface{} {
 		return SubdomainRecord{}
 	case HistoryTable:
 		return HistoryRecord{}
+	case LookupTable:
+		return LookupResult{}
 	default:
 		return nil
 	}
