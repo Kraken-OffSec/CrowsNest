@@ -100,6 +100,7 @@ Dehasher is capable of handling wildcard queries.
 A wildcard query cannot begin with a wildcard.  
 This is a limitation of the Dehashed API.
 An asterisk can be used to denote multiple characters, and a question mark can be used to denote a single character.
+![Alt text](.img/wildcard_sample.png "Wildcard Query")
 ``` go
 # Provide credentials for emails matching @target.com and @target2.com
 dehasher api -E @target?.com -C -W
@@ -132,6 +133,9 @@ Dehasher supports WHOIS lookups, history searches, reverse WHOIS searches, IP lo
 The WhoIs Lookups require a separate API Credit from the Dehashed API.
 
 ### Domain Lookup
+Dehasher can perform a domain lookup for a given domain.
+This provides a tree view of the domain's WHOIS information.
+![Alt text](.img/tree_whois_lookup.png "WhoIs Tree View")
 ```bash
 # Perform a WHOIS lookup for example.com
 dehasher whois -d example.com
@@ -140,40 +144,57 @@ dehasher whois -d example.com
 ### History Lookup
 History Lookups require 25 credits. 
 This is a Dehashed API limitation.
+The history lookup is immediately written to file and not displayed in the terminal or stored in the database.
 ```bash
 # Perform a WHOIS history search for example.com
 dehasher whois -d example.com -H
 ```
 
 ### Reverse WHOIS Lookup
+Dehasher can perform a reverse WHOIS lookup for given criteria.  
+This provides a list of all domains that match the given query.  
+The reverse WHOIS lookup is immediately written to file and not displayed in the terminal or stored in the database.
 ```bash
 # Perform a reverse WHOIS lookup for example.com
 dehasher whois -I example.com
 ```
 
 ### IP Lookup
+Dehasher can perform a reverse IP lookup for a given IP address.  
+This provides a list of all domains that match the given query.
+![Alt text](.img/reverse_ip_lookup.png "WhoIs Tree View")
 ```bash
 # Perform a reverse IP lookup for 8.8.8.8
 dehasher whois -i 8.8.8.8
 ```
 
 ### MX Lookup
+Dehasher can perform an MX lookup for a given MX hostname.  
+This provides a list of all domains that match the given query.
+![Alt text](.img/mx_lookup.png "WhoIs Tree View")
 ```bash
 # Perform a reverse MX lookup for google.com
 dehasher whois -m google.com
 ```
 ### NS Lookup
+Dehasher can perform an NS lookup for a given NS hostname.  
+This provides a list of all domains that match the given query.
+The picture below also includes the --debug global flag.
+![Alt text](.img/debug_ns_search.png "WhoIs Tree View")
 ```bash
 # Perform a reverse NS lookup for google.com
 dehasher whois -n google.com
 ```
 ### Subdomain Scan
+Dehasher can perform a subdomain scan for a given domain.  
+This provides a list of all subdomains that match the given query.
+![Alt text](.img/subdomains_lookup.png "WhoIs Tree View")
 ```bash
 # Perform a WHOIS subdomain scan for google.com
 dehasher whois -d google.com -s
 ```
 
-<hr></hr>
+---
 
 ## 📊 Database Querying
 Dehasher stores query results in a local database.  
