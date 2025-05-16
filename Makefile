@@ -16,7 +16,7 @@ PLATFORMS=linux darwin windows
 ARCHS=amd64 arm64
 
 # Version info from git tag or default
-VERSION=$(shell git describe --tags 2>/dev/null || echo "v1.0.1")
+VERSION=$(shell git describe --tags 2>/dev/null || echo "v1.2.0")
 
 .PHONY: all clean build build-all
 
