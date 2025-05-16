@@ -30,7 +30,7 @@ go build dehasher.go
 
 <hr></hr>
 
-## Getting Started
+## 🔰 Getting Started
 
 To begin, clone the repository
 ``` bash-session
