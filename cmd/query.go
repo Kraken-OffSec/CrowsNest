@@ -12,30 +12,37 @@ import (
 
 // Map of available tables and their columns
 var availableTables = map[string][]string{
-	"results": {
-		"id", "created_at", "updated_at", "deleted_at", "dehashed_id", "email", "ip_address", "username",
-		"password", "hashed_password", "hash_type", "name", "vin", "license_plate", "url", "social",
-		"cryptocurrency_address", "address", "phone", "company", "database_name",
-	},
 	"creds": {
 		"id", "created_at", "updated_at", "deleted_at", "email", "username", "password",
 	},
-	"whois": {
-		"id", "created_at", "updated_at", "deleted_at", "contact_email", "created_date",
-		"domain_name", "domain_name_ext", "expires_date", "status", "whois_server",
+	//"history": {
+	//	"id", "created_at", "updated_at", "deleted_at", "domain_name", "domain_type",
+	//	"registrar_name", "whois_server", "created_date_iso8601", "updated_date_iso8601", "expires_date_iso8601",
+	//},
+	"lookup": {
+		"id", "created_at", "updated_at", "deleted_at", "search_term", "type", "first_seen", "last_visit",
+		"name",
 	},
-	"subdomains": {
-		"id", "created_at", "updated_at", "deleted_at", "domain", "first_seen", "last_seen",
-	},
-	"history": {
-		"id", "created_at", "updated_at", "deleted_at", "domain_name", "domain_type",
-		"registrar_name", "whois_server", "created_date_iso8601", "updated_date_iso8601", "expires_date_iso8601",
-	},
+	// Query Options
 	"runs": {
 		"id", "created_at", "updated_at", "deleted_at", "max_records", "max_requests", "starting_page",
 		"output_format", "output_file", "regex_match", "wildcard_match", "username_query", "email_query",
 		"ip_query", "pass_query", "hash_query", "name_query", "domain_query", "vin_query", "license_plate_query",
 		"address_query", "phone_query", "social_query", "crypto_address_query", "print_balance", "creds_only",
+	},
+	"results": {
+		"id", "created_at", "updated_at", "deleted_at", "dehashed_id", "email", "ip_address", "username",
+		"password", "hashed_password", "hash_type", "name", "vin", "license_plate", "url", "social",
+		"cryptocurrency_address", "address", "phone", "company", "database_name",
+	},
+	"subdomains": {
+		"id", "created_at", "updated_at", "deleted_at", "domain", "first_seen", "last_seen",
+	},
+	"whois": {
+		"id", "created_at", "updated_at", "deleted_at", "audit", "contact_email", "created_date", "created_date_normalized",
+		"domain_name", "domain_name_ext", "estimated_domain_age", "expires_date", "expires_date_normalized", "footer", "header",
+		"name_servers", "parse_code", "raw_text", "registrant", "registrar_iana_id", "registrar_name", "registry_data",
+		"status", "stripped_text", "updated_date", "updated_date_normalized",
 	},
 }
 
