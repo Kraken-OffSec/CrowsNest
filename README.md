@@ -77,7 +77,7 @@ To configure the database location:
 Dehasher can be used simply for example to query for credentials matching a given email domain.
 ``` go
 # Provide credentials for emails matching @target.com
-dehasher -k ddq<redacted> -a ar1ste1a@domain.tld -E @target.com
+dehasher -D @target.com -C
 ```
 
 ### Simple Credentials Query
