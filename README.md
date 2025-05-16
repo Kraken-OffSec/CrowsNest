@@ -181,7 +181,7 @@ This database can be queried for previous results.
 This database also includes WhoIs Information and Subdomain Scan results, but does **not** include historical lookups.
 
 ## Simple Query
-![Alt text](./.img/simple_query.png "Simple Query")
+![Alt text](.img/simple_query_db.png "Simple Query")
 
 Dehasher supports querying the database for previous results.  
 This is useful for when you want to query for specific information.
@@ -192,7 +192,7 @@ dehasher query -t results -q "username LIKE '%admin%'"
 
 
 ## Raw SQL Queries
-![Alt text](./.img/raw_query.png "Raw Query")
+![Alt text](.img/raw_query_db.png "Raw Query")
 
 Dehasher also supports raw SQL queries.  This is useful for when you want to query for specific information.
 ```bash
