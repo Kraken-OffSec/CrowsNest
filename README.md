@@ -1,5 +1,5 @@
 <div align="center">
-    <img src=.img/crowsnest.png  style="width: 500px; height: auto" alt="Ar1ste1a" title="CrowsNest Logo">
+    <img src=.img/crowsnest.png  style="width: 500px; height: auto" alt="CrowsNest Logo" title="CrowsNest Logo">
 </div>
 
 ### A CLI tool for seamless interaction with the Dehashed and Hunter.io APIs.
