@@ -30,14 +30,14 @@ clean:
 
 # Build for current platform
 build:
-	$(GO) build -o $(BUILD_DIR)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" dehasher.go
+	$(GO) build -o $(BUILD_DIR)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" crowsnest.go
 
 # Build for all platforms
 build-all: clean
 	@for platform in $(PLATFORMS); do \
 	    for arch in $(ARCHS); do \
 	        echo "Building for $$platform/$$arch..."; \
-	        GOOS=$$platform GOARCH=$$arch $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" dehasher.go; \
+	        GOOS=$$platform GOARCH=$$arch $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" crowsnest.go; \
 	        if [ "$$platform" = "windows" ]; then \
 	            mv $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch.exe; \
 	        fi; \
