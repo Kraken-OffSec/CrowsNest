@@ -56,7 +56,7 @@ To configure the database location:
 
 ---
 
-## Dehashed
+## 🌐 Dehashed
 
 ###️ Initial Setup
 
