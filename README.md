@@ -276,7 +276,13 @@ This is a combination of the company and person enrichments given an email addre
 # Perform a Hunter.io combined enrichment search for example@target.com
 crowsnest hunter -e example@target.com -B
 ```
-
+## Debugging
+CrowsNest supports debugging.  This can be enabled using the `--debug` flag in the root command.
+![Alt text](.img/crowsnest_debugging_global.png "Debugging")
+```bash
+# Perform a Hunter.io combined enrichment search for example@target.com with debugging enabled
+crowsnest --debug hunter -e example@target.com -B
+```
 ---
 ## 📊 Database Querying
 CrowsNest stores query results in a local database.  
@@ -287,10 +293,10 @@ This database also includes WhoIs Information and Subdomain Scan results, but do
 ## Simple Query
 #### It's possible to query the database using shorthand and without knowing any SQL at all.
 #### The following queries the results table where username is not null, only showing the username, email and password columns.
-![Alt text](.img/simple_query_db.png "Simple Query")
+![Alt text](.img/query_simple.png "Simple Query")
 #### You may also add in a simple query using the `-q` flag. The following displays a 'LIKE' clause on the email column.
 #### Note the '%\<clause\>%' is still required.
-![Alt text](.img/simple_where.png "Simple Query")
+![Alt text](.img/query_where.png "Simple Query")
   
 ```bash
 # Query the database for all results containing the word 'admin' in the username
@@ -299,7 +305,7 @@ crowsnest query -t results -q "username LIKE '%admin%'"
 
 
 ## Raw SQL Queries
-![Alt text](.img/raw_query_db.png "Raw Query")
+![Alt text](.img/query_raw.png "Raw Query")
 
 CrowsNest also supports raw SQL queries.  This is useful for when you want to query for specific information.
 ```bash
@@ -317,6 +323,7 @@ crowsnest query -t results -q "username LIKE '%admin%'" -n username,email,passwo
 ## Listing Tables and Columns
 CrowsNest supports listing all available tables and columns.  
 This is useful for when you want to query for specific information.
+![Alt text](.img/query_alltables.png "List All Tables")
 ```bash
 # List all available tables and columns
 crowsnest query -a
@@ -347,6 +354,7 @@ CrowsNest supports exporting results to a file.
 This is useful for when you want to requery for specific information without touching the Dehashed API.
 The export subcommand supports all the same options as the query subcommand.
 The export subcommand also supports file naming and output format control.
+![Alt text](.img/export_raw.png "Export Results")
 ```bash
 # Export all results containing the word 'admin' in the username to a text file
 crowsnest export -t results -q "username LIKE '%admin%'" -o admins_file -f txt
@@ -357,8 +365,8 @@ crowsnest export -t results -q "username LIKE '%admin%'" -o admins_file -f txt
 CrowsNest uses the `zap` logging library for logging.  The logs are stored in `~/.local/share/crowsnest/logs`.
 The logs can be easily queried from the crowsnest CLI.
 
-### Logs Dates
-#### crowsnest utilized 'easy time' to determine the appropriate time for a given query.
+### Filtering by Date
+#### CrowsNest utilizes 'easy time' to determine the appropriate time for a given query.
 ![Alt text](.img/easy_time_parsing.png "Easy Time")
 #### You may also used dates mixed with easy time to perform queries.
 ![Alt text](.img/mixed_time_query.png "Mixed Time")
@@ -385,24 +393,10 @@ crowsnest logs -s "last 24 hours"
 crowsnest logs -s "05-01-2025" -v error,fatal
 ```
 
-## 🎉 Sample Run
-```bash
-ar1ste1a@kali:~$ crowsnest dehashed -D <redacted>.com -o <redacted> -f json
-Making 3 Requests for 10000 Records (30000 Total)
-[*] Querying Dehashed API...
-	[*] Performing Request...
-		[+] Retrieved 2740 Records
-        [-] Not Enough Entries, ending queries
-	[+] Discovered 10 Credentials
-	[*] Writing entries to file: <redacted>.json
-		[*] Success
-[*] Completing Process
-```
-
 ## 🤝 Contributing
 Contributions are welcome! Submit a pull request to help improve CrowsNest.
 
-
+## [Buy Me A Coffee](https://buymeacoffee.com/ehosinskiz)
 
 <div align="center">
     <img src="https://img.wanman.io/fUSu0/jUtovIFE52.png/raw" style="width: 350px; height: auto" alt="Ar1ste1a" title="Ar1ste1a Offensive Security">
