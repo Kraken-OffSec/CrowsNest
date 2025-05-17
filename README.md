@@ -289,7 +289,7 @@ The logs can be easily queried from the Dehasher CLI.
 #### Dehasher utilized 'easy time' to determine the appropriate time for a given query.
 ![Alt text](.img/easy_time_parsing.png "Easy Time")
 #### You may also used dates mixed with easy time to perform queries.
-![Alt text](.img/easy_time_query_2.png "Mixed Time")
+![Alt text](.img/mixed_time_query.png "Mixed Time")
 #### The following formats are supported:
 - `last 24 hours`
 - `last 2 days`
