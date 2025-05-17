@@ -21,12 +21,12 @@ var (
 		Long: fmt.Sprintf(
 			"%s\n",
 			`
-   ╔═╗┬─┐┌─┐┬ ┬┌─┐╔╗╔┌─┐┌─┐┌┬┐
-   ║  ├┬┘│ ││││└─┐║║║├┤ └─┐ │
-   ╚═╝┴└─└─┘└┴┘└─┘╝╚╝└─┘└─┘ ┴
+    ╔═╗┬─┐┌─┐┬ ┬┌─┐╔╗╔┌─┐┌─┐┌┬┐
+    ║  ├┬┘│ ││││└─┐║║║├┤ └─┐ │
+    ╚═╝┴└─└─┘└┴┘└─┘╝╚╝└─┘└─┘ ┴
 
-  Crow’s Nest OSINT Recon Suite
-⚓ A KrakenTech Intelligence Tool
+   Crow’s Nest OSINT Recon Suite
+ ⚓ A KrakenTech Intelligence Tool
 `,
 		),
 		Version: "v1.2.1",
@@ -124,7 +124,7 @@ var buyMeCoffeeCmd = &cobra.Command{
 	Use:   "coffee",
 	Short: "Support the project by buying a coffee",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(color.HiRedString("                                                                                   ;)( ;"))
+		fmt.Println(color.HiRedString("                                                                                   ;)(; "))
 		fmt.Println(color.HiCyanString("                   We Hope You Enjoy Our Product                                  :----:"))
 		fmt.Println(color.HiCyanString("                                                                                 C|====|"))
 		fmt.Println(color.HiCyanString("                                                                                  |    |"))

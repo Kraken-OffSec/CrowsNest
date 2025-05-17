@@ -3,7 +3,9 @@ package sqlite
 import (
 	"fmt"
 	"github.com/charmbracelet/lipgloss/tree"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // HunterDomainSearchResult represents the response from Hunter.io domain search API
@@ -14,8 +16,8 @@ type HunterDomainSearchResult struct {
 
 // HunterDomainData contains the main domain information
 type HunterDomainData struct {
-	IString
 	gorm.Model
+	IString       `gorm:"-"`
 	Domain        string        `json:"domain" gorm:"unique"`
 	Disposable    bool          `json:"disposable"`
 	Webmail       bool          `json:"webmail"`
@@ -512,8 +514,8 @@ type HunterPersonEnrichmentResponse struct {
 
 // PersonData contains the detailed person information
 type PersonData struct {
-	IString
 	gorm.Model
+	IString       `gorm:"-"`
 	ID            string     `json:"id"`
 	Name          PersonName `json:"name" gorm:"embedded;embeddedPrefix:name_"`
 	Email         string     `json:"email" gorm:"unique"`
@@ -754,4 +756,65 @@ func (c *HunterCombinedEnrichmentResponse) String() string {
 	return fmt.Sprintf("Person:\n%s\n\nCompany:\n%s",
 		c.Data.Person.String(),
 		c.Data.Company.String())
+}
+
+func StoreHunterDomain(hunterDomain HunterDomainData) error {
+	db := GetDB()
+
+	// Use OnConflict clause to handle duplicates
+	err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&hunterDomain).Error
+	if err != nil {
+		zap.L().Error("store_hunter_domain",
+			zap.String("message", "failed to store hunter domain"),
+			zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func StoreHunterEmails(hunterEmails []HunterEmail) error {
+	if len(hunterEmails) == 0 {
+		return nil
+	}
+
+	zap.L().Info("Storing hunter emails", zap.Int("count", len(hunterEmails)))
+	db := GetDB()
+
+	// Use batch insert with conflict handling
+	const batchSize = 100
+	var lastErr error
+
+	for i := 0; i < len(hunterEmails); i += batchSize {
+		end := i + batchSize
+		if end > len(hunterEmails) {
+			end = len(hunterEmails)
+		}
+
+		batch := hunterEmails[i:end]
+		// Use Clauses with OnConflict DoNothing to skip conflicts
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
+		if err != nil {
+			zap.L().Warn("Error storing some hunter emails", zap.Error(err))
+			lastErr = err
+			// Continue with next batch despite error
+		}
+	}
+
+	return lastErr
+}
+
+func StoreHunterPersonData(personData PersonData) error {
+	db := GetDB()
+
+	// Use OnConflict clause to handle duplicates
+	err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&personData).Error
+	if err != nil {
+		zap.L().Error("store_person_data",
+			zap.String("message", "failed to store person data"),
+			zap.Error(err))
+		return err
+	}
+
+	return nil
 }

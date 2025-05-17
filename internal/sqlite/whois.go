@@ -2,7 +2,9 @@ package sqlite
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strings"
 )
 
@@ -511,4 +513,118 @@ func formatWhoisContact(sb *strings.Builder, contact Contact, indent string) {
 		}
 		sb.WriteString(indent + "Raw Text: " + rawTextPreview + "\n")
 	}
+}
+
+func StoreWhoisRecord(whoisRecord WhoisRecord) error {
+	// Create a pointer to the record to make it addressable
+	recordPtr := &whoisRecord
+
+	zap.L().Info("Storing WHOIS record",
+		zap.String("domain", whoisRecord.DomainName))
+
+	db := GetDB()
+
+	// Use OnConflict clause to handle duplicates
+	err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(recordPtr).Error
+	if err != nil {
+		zap.L().Error("store_whois_record",
+			zap.String("message", "failed to store whois record"),
+			zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func StoreWhoisSubdomainRecords(subdomainRecords []SubdomainRecord) error {
+	if len(subdomainRecords) == 0 {
+		return nil
+	}
+
+	zap.L().Info("Storing subdomain records", zap.Int("count", len(subdomainRecords)))
+	db := GetDB()
+
+	// Use batch insert with conflict handling
+	const batchSize = 100
+	var lastErr error
+
+	for i := 0; i < len(subdomainRecords); i += batchSize {
+		end := i + batchSize
+		if end > len(subdomainRecords) {
+			end = len(subdomainRecords)
+		}
+
+		batch := subdomainRecords[i:end]
+		// Use Clauses with OnConflict DoNothing to skip conflicts
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
+		if err != nil {
+			zap.L().Warn("Error storing some subdomain records", zap.Error(err))
+			lastErr = err
+			// Continue with next batch despite error
+		}
+	}
+
+	return lastErr
+}
+
+func StoreWhoisHistoryRecords(historyRecords []HistoryRecord) error {
+	if len(historyRecords) == 0 {
+		return nil
+	}
+
+	zap.L().Info("Storing history records", zap.Int("count", len(historyRecords)))
+	db := GetDB()
+
+	// Use batch insert with conflict handling
+	const batchSize = 100
+	var lastErr error
+
+	for i := 0; i < len(historyRecords); i += batchSize {
+		end := i + batchSize
+		if end > len(historyRecords) {
+			end = len(historyRecords)
+		}
+
+		batch := historyRecords[i:end]
+		// Use Clauses with OnConflict DoNothing to skip conflicts
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
+		if err != nil {
+			zap.L().Warn("Error storing some history records", zap.Error(err))
+			lastErr = err
+			// Continue with next batch despite error
+		}
+	}
+
+	return lastErr
+}
+
+func StoreWhoisLookup(lookup []LookupResult) error {
+	if len(lookup) == 0 {
+		return nil
+	}
+
+	zap.L().Info("Storing IP lookup records", zap.Int("count", len(lookup)))
+	db := GetDB()
+
+	// Use batch insert with conflict handling
+	const batchSize = 100
+	var lastErr error
+
+	for i := 0; i < len(lookup); i += batchSize {
+		end := i + batchSize
+		if end > len(lookup) {
+			end = len(lookup)
+		}
+
+		batch := lookup[i:end]
+		// Use Clauses with OnConflict DoNothing to skip conflicts
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
+		if err != nil {
+			zap.L().Warn("Error storing some IP lookup records", zap.Error(err))
+			lastErr = err
+			// Continue with next batch despite error
+		}
+	}
+
+	return lastErr
 }
