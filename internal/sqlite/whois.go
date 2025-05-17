@@ -50,7 +50,7 @@ func (w WhoisRecord) String() string {
 	sb.WriteString(fmt.Sprintf("Domain Name Ext: %s\n", w.DomainNameExt))
 	sb.WriteString(fmt.Sprintf("Registrar Name: %s\n", w.RegistrarName))
 	sb.WriteString(fmt.Sprintf("Registrar IANA ID: %s\n", w.RegistrarIANAID))
-	sb.WriteString(fmt.Sprintf("Contact Email: %s\n", w.ContactEmail))
+	sb.WriteString(fmt.Sprintf("Contact HunterEmail: %s\n", w.ContactEmail))
 	sb.WriteString(fmt.Sprintf("Estimated Domain Age: %d days\n", w.EstimatedDomainAge))
 
 	// Dates
@@ -379,7 +379,7 @@ func formatContact(sb *strings.Builder, contact ContactInfo, indent string) {
 		sb.WriteString(indent + "Organization: " + contact.Organization + "\n")
 	}
 	if contact.Email != "" {
-		sb.WriteString(indent + "Email: " + contact.Email + "\n")
+		sb.WriteString(indent + "HunterEmail: " + contact.Email + "\n")
 	}
 	if contact.Street != "" {
 		sb.WriteString(indent + "Street: " + contact.Street + "\n")

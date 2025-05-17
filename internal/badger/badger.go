@@ -100,7 +100,7 @@ func Close() {
 	}
 }
 
-func GetKey() string {
+func GetDehashedKey() string {
 	var apiKey string
 
 	err := db.View(func(txn *badger.Txn) error {
@@ -121,6 +121,29 @@ func GetKey() string {
 		)
 	}
 
+	return apiKey
+}
+
+func GetHunterKey() string {
+	var apiKey string
+
+	err := db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte("cfg:hunter_api_key"))
+		if err != nil {
+			return err // could be ErrKeyNotFound
+		}
+		return item.Value(func(val []byte) error {
+			apiKey = string(val)
+			return nil
+		})
+	})
+
+	if err != nil {
+		zap.L().Error("get_hunter_api_key",
+			zap.String("message", "failed to get hunter_api_key"),
+			zap.Error(err),
+		)
+	}
 	return apiKey
 }
 
@@ -162,13 +185,26 @@ func GetUseLocalDB() bool {
 	return useLocal
 }
 
-func StoreKey(apiKey string) error {
+func StoreDehashedKey(apiKey string) error {
 	err := db.Update(func(txn *badger.Txn) error {
 		return txn.Set([]byte("cfg:api_key"), []byte(apiKey))
 	})
 	if err != nil {
 		zap.L().Error("set_api_key",
-			zap.String("message", "failed to set api_key"),
+			zap.String("message", "failed to set dehashed api_key"),
+			zap.Error(err),
+		)
+	}
+	return err
+}
+
+func StoreHunterKey(apiKey string) error {
+	err := db.Update(func(txn *badger.Txn) error {
+		return txn.Set([]byte("cfg:hunter_api_key"), []byte(apiKey))
+	})
+	if err != nil {
+		zap.L().Error("set_api_key",
+			zap.String("message", "failed to set hunter api_key"),
 			zap.Error(err),
 		)
 	}

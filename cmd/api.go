@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	// Add query command to root command
+	// Add api command to root command
 	rootCmd.AddCommand(apiCmd)
 
 	// Add flags specific to api command
@@ -25,7 +25,7 @@ func init() {
 	apiCmd.Flags().StringVarP(&outputFormat, "format", "f", "json", "Output format (json, yaml, xml, txt)")
 	apiCmd.Flags().StringVarP(&outputFile, "output", "o", "query", "File to output results to including extension")
 	apiCmd.Flags().StringVarP(&usernameQuery, "username", "U", "", "Username query")
-	apiCmd.Flags().StringVarP(&emailQuery, "email-query", "E", "", "Email query")
+	apiCmd.Flags().StringVarP(&emailQuery, "email-query", "E", "", "HunterEmail query")
 	apiCmd.Flags().StringVarP(&ipQuery, "ip", "I", "", "IP address query")
 	apiCmd.Flags().StringVarP(&domainQuery, "domain", "D", "", "Domain query")
 	apiCmd.Flags().StringVarP(&passwordQuery, "password", "P", "", "Password query")
@@ -73,7 +73,7 @@ var (
 		Short: "Query the Dehashed API",
 		Long:  `Query the Dehashed API for emails, usernames, passwords, hashes, IP addresses, and names.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			key := getStoredApiKey()
+			key := getDehashedApiKey()
 
 			// Validate credentials
 			if key == "" {
@@ -135,6 +135,6 @@ var (
 )
 
 // Helper functions to get stored API credentials
-func getStoredApiKey() string {
-	return badger.GetKey()
+func getDehashedApiKey() string {
+	return badger.GetDehashedKey()
 }

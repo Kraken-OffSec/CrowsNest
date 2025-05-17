@@ -12,6 +12,8 @@ const (
 	SubdomainsTable
 	HistoryTable
 	LookupTable
+	HunterDomainTable
+	HunterEmailTable
 	UnknownTable
 )
 
@@ -31,6 +33,10 @@ func GetTable(userInput string) Table {
 		return HistoryTable
 	case "lookup":
 		return LookupTable
+	case "hunter_domain":
+		return HunterDomainTable
+	case "hunter_email":
+		return HunterEmailTable
 	default:
 		return UnknownTable
 	}
@@ -52,6 +58,10 @@ func (t Table) Object() interface{} {
 		return HistoryRecord{}
 	case LookupTable:
 		return LookupResult{}
+	case HunterDomainTable:
+		return HunterDomainData{}
+	case HunterEmailTable:
+		return HunterEmail{}
 	default:
 		return nil
 	}

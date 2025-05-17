@@ -66,21 +66,38 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&debugGlobal, "debug", false, "Show debug information")
 
 	// Add subcommands
-	rootCmd.AddCommand(setKeyCmd)
+	rootCmd.AddCommand(setDehashedKeyCmd)
+	rootCmd.AddCommand(setHunterKeyCmd)
 	rootCmd.AddCommand(setLocalDb)
 }
 
 // Command to set API key
-var setKeyCmd = &cobra.Command{
-	Use:   "set-key [key]",
-	Short: "Set and store API key",
+var setDehashedKeyCmd = &cobra.Command{
+	Use:   "set-dehashed [key]",
+	Short: "Set and store Dehashed.com API key",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		key := args[0]
 		// Store key in badger DB
-		err := storeApiKey(key)
+		err := storeDehashedApiKey(key)
 		if err != nil {
-			fmt.Printf("Error storing API key: %v\n", err)
+			fmt.Printf("Error storing Dehashed API key: %v\n", err)
+			return
+		}
+		fmt.Println("API key stored successfully")
+	},
+}
+
+var setHunterKeyCmd = &cobra.Command{
+	Use:   "set-hunter [key]",
+	Short: "Set and store Hunter.io API key",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		key := args[0]
+		// Store key in badger DB
+		err := storeHunterApiKey(key)
+		if err != nil {
+			fmt.Printf("Error storing Hunter API key: %v\n", err)
 			return
 		}
 		fmt.Println("API key stored successfully")
@@ -116,8 +133,17 @@ var setLocalDb = &cobra.Command{
 }
 
 // Helper functions to store API credentials
-func storeApiKey(key string) error {
-	err := badger.StoreKey(key)
+func storeDehashedApiKey(key string) error {
+	err := badger.StoreDehashedKey(key)
+	if err != nil {
+		fmt.Printf("Error storing API key: %v\n", err)
+		return err
+	}
+	return nil
+}
+
+func storeHunterApiKey(key string) error {
+	err := badger.StoreHunterKey(key)
 	if err != nil {
 		fmt.Printf("Error storing API key: %v\n", err)
 		return err

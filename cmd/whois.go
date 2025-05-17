@@ -55,7 +55,7 @@ var (
 		Short: "Dehashed WHOIS lookups and reverse WHOIS searches",
 		Long:  `Perform WHOIS lookups, history searches, reverse WHOIS searches, IP lookups, MX lookups, NS lookups, and subdomain scans.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			key := getStoredApiKey()
+			key := getDehashedApiKey()
 
 			// Validate credentials
 			if key == "" {
@@ -172,6 +172,7 @@ var (
 				}
 
 				if whoisHistory {
+					filename := whoisOutputFile + "_history"
 					fmt.Println("[*] Performing WHOIS history search...")
 					// Perform history search
 					historyRecords, err := w.WhoisHistory(whoisDomain)
@@ -194,7 +195,7 @@ var (
 						if len(historyRecords) > 0 {
 							fmt.Println("[*] Records Found: %d\n", len(historyRecords))
 							fmt.Println("[*] WHOIS History being written to file: %s%s\n", whoisOutputFile, fType.Extension())
-							writeErr := export.WriteWhoIsHistoryToFile(historyRecords, whoisOutputFile, fType)
+							writeErr := export.WriteWhoIsHistoryToFile(historyRecords, filename, fType)
 							if writeErr != nil {
 								if debugGlobal {
 									debug.PrintInfo("failed to write whois history to file")
@@ -233,6 +234,7 @@ var (
 
 				// Perform subdomain scan
 				if whoisSubdomainScan {
+					filename := whoisOutputFile + "_subdomains"
 					fmt.Println("[*] Performing WHOIS subdomain scan...")
 					subdomains, err := w.WhoisSubdomainScan(whoisDomain)
 
@@ -268,7 +270,7 @@ var (
 						// Write the subdomains to file if any
 						if len(subdomains) > 0 {
 							fmt.Printf("[*] Writing subdomains to file: %s%s\n", whoisOutputFile, fType.Extension())
-							err = export.WriteSubdomainsToFile(subdomains, whoisOutputFile, fType)
+							err = export.WriteSubdomainsToFile(subdomains, filename, fType)
 							if err != nil {
 								zap.L().Error("write_whois_subdomain",
 									zap.String("message", "failed to write whois subdomain to file"),
