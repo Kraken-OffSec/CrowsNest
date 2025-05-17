@@ -284,16 +284,6 @@ dehasher export -t results -q "username LIKE '%admin%'" -o admins_file -f txt
 
 Dehasher uses the `zap` logging library for logging.  The logs are stored in `~/.local/share/Dehasher/logs`.
 The logs can be easily queried from the Dehasher CLI.
-```bash
-# Show the last 10 logs
-dehasher logs -l 10
-
-# Show logs from the last 24 hours
-dehasher logs -s "last 24 hours"
-
-# Show logs from the last 24 hours with a severity of error or fatal
-dehasher logs -s "05-01-2025" -v error,fatal
-```
 
 ### Logs Dates
 #### Dehasher utilized 'easy time' to determine the appropriate time for a given query.
@@ -311,6 +301,17 @@ dehasher logs -s "05-01-2025" -v error,fatal
 - `05/01/25`
 - `05-01-25`
 - `May 01, 2025`
+
+```bash
+# Show the last 10 logs
+dehasher logs -l 10
+
+# Show logs from the last 24 hours
+dehasher logs -s "last 24 hours"
+
+# Show logs from the last 24 hours with a severity of error or fatal
+dehasher logs -s "05-01-2025" -v error,fatal
+```
 
 ## 🎉 Sample Run
 ```bash
