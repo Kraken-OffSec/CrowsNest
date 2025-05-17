@@ -58,7 +58,7 @@ To configure the database location:
 
 ## 🌐 Dehashed
 
-###️ Initial Setup
+### Initial Setup
 
 CrowsNest requires an API key from Dehashed. Set it up with:
 ![Alt text](.img/set-dehashed.png "Set Dehashed Key")
