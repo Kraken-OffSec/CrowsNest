@@ -113,7 +113,7 @@ var (
 
 				// Write Hunter.io Domain Search Result to file
 				fmt.Printf("[*] Writing Hunter.io Domain Search Result to file: %s%s\n", hunterOutputFile, fType.Extension())
-				err = export.WriteHunterDomainToFile(result, hunterOutputFile, fType)
+				err = export.WriteIStringToFile(result, hunterOutputFile, fType)
 				if err != nil {
 					if debugGlobal {
 						debug.PrintInfo("failed to write hunter domain search to file")
@@ -150,7 +150,7 @@ var (
 
 				// Write Hunter.io Email Finder Result to file
 				fmt.Printf("[*] Writing Hunter.io Email Finder Result to file: %s%s\n", hunterOutputFile, fType.Extension())
-				err = export.WriteHunterEmailToFile(result, hunterOutputFile, fType)
+				err = export.WriteIStringToFile(result, hunterOutputFile, fType)
 				if err != nil {
 					if debugGlobal {
 						debug.PrintInfo("failed to write hunter email find to file")
@@ -206,7 +206,7 @@ var (
 				}
 				// Write Hunter.io Email Verification Result to file
 				fmt.Printf("[*] Writing Hunter.io Email Verification Result to file: %s%s\n", hunterOutputFile, fType.Extension())
-				err = export.WriteHunterEmailVerifyToFile(result, hunterOutputFile, fType)
+				err = export.WriteIStringToFile(result, hunterOutputFile, fType)
 				if err != nil {
 					if debugGlobal {
 						debug.PrintInfo("failed to write hunter email verification to file")
@@ -264,7 +264,7 @@ var (
 
 				// Write to file
 				fmt.Printf("[*] Writing Hunter.io Company Enrichment Result to file: %s%s\n", hunterOutputFile, fType.Extension())
-				err = export.WriteHunterCompanyEnrichmentToFile(result, hunterOutputFile, fType)
+				err = export.WriteIStringToFile(result, hunterOutputFile, fType)
 				if err != nil {
 					if debugGlobal {
 						debug.PrintInfo("failed to write hunter company enrichment to file")
@@ -302,7 +302,7 @@ var (
 
 				// Write to file
 				fmt.Printf("[*] Writing Hunter.io Person Enrichment Result to file: %s%s\n", hunterOutputFile, fType.Extension())
-				err = export.WriteHunterPersonEnrichmentToFile(result, hunterOutputFile, fType)
+				err = export.WriteIStringToFile(result, hunterOutputFile, fType)
 				if err != nil {
 					if debugGlobal {
 						debug.PrintInfo("failed to write hunter person enrichment to file")
@@ -339,7 +339,7 @@ var (
 
 				// Write to file
 				fmt.Printf("[*] Writing Hunter.io Combined Enrichment Result to file: %s%s\n", hunterOutputFile, fType.Extension())
-				err = export.WriteHunterCombinedEnrichmentToFile(result, hunterOutputFile, fType)
+				err = export.WriteIStringToFile(result, hunterOutputFile, fType)
 				if err != nil {
 					if debugGlobal {
 						debug.PrintInfo("failed to write hunter combined enrichment to file")
