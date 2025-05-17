@@ -16,7 +16,7 @@ var (
 	// rootCmd is the base command for the CLI.
 	rootCmd = &cobra.Command{
 		Use:   "dehasher",
-		Short: `Dehasher is a cli tool for querying query.`,
+		Short: `Dehasher is a cli tool for querying the dehashed api.`,
 		Long: fmt.Sprintf(
 			"%s\n%s",
 			`
@@ -42,7 +42,7 @@ var (
 ––•–√\/––√\/––•––––•–√\/––√\/––•––––•–√\/––√\/––•––√\/––•––––•–√\/––√\/––•––
 `,
 		),
-		Version: "v1.0",
+		Version: "v1.2.1",
 	}
 )
 
@@ -63,7 +63,7 @@ func init() {
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
 	// Add global flags
-	rootCmd.PersistentFlags().BoolVar(&debugGlobal, "debug", false, "Show debugGlobal information")
+	rootCmd.PersistentFlags().BoolVar(&debugGlobal, "debug", false, "Show debug information")
 
 	// Add subcommands
 	rootCmd.AddCommand(setKeyCmd)

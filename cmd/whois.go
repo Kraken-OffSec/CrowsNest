@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"os"
 	"strings"
 	"time"
 )
@@ -97,15 +98,9 @@ var (
 			// Show credits if requested
 			if whoisShowCredits {
 				fmt.Println("[*] Getting WHOIS balance...")
-				balance, err := w.Balance()
-				if err != nil {
-					zap.L().Error("get_whois_credits",
-						zap.String("message", "failed to get whois balance"),
-						zap.Error(err),
-					)
-					fmt.Printf("Error getting WHOIS balance: %v\n", err)
+				if whoisShowCredits {
+					checkBalance(w)
 				}
-				fmt.Printf("WHOIS Credits: %d\n", balance)
 			}
 
 			// Check if domain is provided for history and subdomain scan
@@ -115,15 +110,7 @@ var (
 					return
 				}
 				if whoisShowCredits {
-					balance, err := w.Balance()
-					if err != nil {
-						zap.L().Error("get_whois_credits",
-							zap.String("message", "failed to get whois balance"),
-							zap.Error(err),
-						)
-						fmt.Printf("Error getting WHOIS balance: %v\n", err)
-					}
-					fmt.Println("WHOIS Credits: ", balance)
+					checkBalance(w)
 				}
 			}
 
@@ -147,19 +134,7 @@ var (
 				}
 
 				if whoisShowCredits {
-					balance, err := w.Balance()
-					if err != nil {
-						if debugGlobal {
-							debug.PrintInfo("failed to get whois balance")
-							debug.PrintError(err)
-						}
-						zap.L().Error("get_whois_credits",
-							zap.String("message", "failed to get whois balance"),
-							zap.Error(err),
-						)
-						fmt.Printf("Error getting WHOIS balance: %v\n", err)
-					}
-					fmt.Println("WHOIS Credits: ", balance)
+					checkBalance(w)
 				}
 
 				// Fix the output format to use proper formatting
@@ -212,19 +187,7 @@ var (
 						fmt.Printf("[!] Error performing WHOIS history lookup: %v\n", err)
 					} else {
 						if whoisShowCredits {
-							balance, err := w.Balance()
-							if err != nil {
-								if debugGlobal {
-									debug.PrintInfo("failed to get whois balance")
-									debug.PrintError(err)
-								}
-								zap.L().Error("get_whois_credits",
-									zap.String("message", "failed to get whois balance"),
-									zap.Error(err),
-								)
-								fmt.Printf("Error getting WHOIS balance: %v\n", err)
-							}
-							fmt.Println("WHOIS Credits: ", balance)
+							checkBalance(w)
 						}
 
 						// Write history records to file if any
@@ -274,19 +237,7 @@ var (
 					subdomains, err := w.WhoisSubdomainScan(whoisDomain)
 
 					if whoisShowCredits {
-						balance, err := w.Balance()
-						if err != nil {
-							if debugGlobal {
-								debug.PrintInfo("failed to get whois balance")
-								debug.PrintError(err)
-							}
-							zap.L().Error("get_whois_credits",
-								zap.String("message", "failed to get whois balance"),
-								zap.Error(err),
-							)
-							fmt.Printf("Error getting WHOIS balance: %v\n", err)
-						}
-						fmt.Println("WHOIS Credits: ", balance)
+						checkBalance(w)
 					}
 
 					if err != nil {
@@ -371,19 +322,7 @@ var (
 
 				// Get credits
 				if whoisShowCredits {
-					balance, err := w.Balance()
-					if err != nil {
-						if debugGlobal {
-							debug.PrintInfo("failed to get whois balance")
-							debug.PrintError(err)
-						}
-						zap.L().Error("get_whois_credits",
-							zap.String("message", "failed to get whois balance"),
-							zap.Error(err),
-						)
-						fmt.Printf("Error getting WHOIS balance: %v\n", err)
-					}
-					fmt.Println("WHOIS Credits: ", balance)
+					checkBalance(w)
 				}
 
 				if len(result) == 0 {
@@ -445,19 +384,7 @@ var (
 
 				// Get credits
 				if whoisShowCredits {
-					balance, err := w.Balance()
-					if err != nil {
-						if debugGlobal {
-							debug.PrintInfo("failed to get whois balance")
-							debug.PrintError(err)
-						}
-						zap.L().Error("get_whois_credits",
-							zap.String("message", "failed to get whois balance"),
-							zap.Error(err),
-						)
-						fmt.Printf("Error getting WHOIS balance: %v\n", err)
-					}
-					fmt.Println("WHOIS Credits: ", balance)
+					checkBalance(w)
 				}
 
 				if len(result) == 0 {
@@ -519,19 +446,7 @@ var (
 
 				// Get credits
 				if whoisShowCredits {
-					balance, err := w.Balance()
-					if err != nil {
-						if debugGlobal {
-							debug.PrintInfo("failed to get whois balance")
-							debug.PrintError(err)
-						}
-						zap.L().Error("get_whois_credits",
-							zap.String("message", "failed to get whois balance"),
-							zap.Error(err),
-						)
-						fmt.Printf("Error getting WHOIS balance: %v\n", err)
-					}
-					fmt.Println("WHOIS Credits: ", balance)
+					checkBalance(w)
 				}
 
 				if len(result) == 0 {
@@ -625,19 +540,7 @@ var (
 				fmt.Println(result)
 
 				if whoisShowCredits {
-					balance, err := w.Balance()
-					if err != nil {
-						if debugGlobal {
-							debug.PrintInfo("failed to get whois balance")
-							debug.PrintError(err)
-						}
-						zap.L().Error("get_whois_credits",
-							zap.String("message", "failed to get whois balance"),
-							zap.Error(err),
-						)
-						fmt.Printf("Error getting WHOIS balance: %v\n", err)
-					}
-					fmt.Println("WHOIS Credits: ", balance)
+					checkBalance(w)
 				}
 				return
 			}
@@ -647,3 +550,23 @@ var (
 		},
 	}
 )
+
+func checkBalance(w *whois.DehashedWhoIs) {
+	balance, err := w.Balance()
+	if err != nil {
+		if debugGlobal {
+			debug.PrintInfo("failed to get whois balance")
+			debug.PrintError(err)
+		}
+		zap.L().Error("get_whois_credits",
+			zap.String("message", "failed to get whois balance"),
+			zap.Error(err),
+		)
+		fmt.Printf("Error getting WHOIS balance: %v\n", err)
+	}
+	fmt.Println("WHOIS Credits: ", balance)
+	if balance == 0 {
+		fmt.Println("[!] No WHOIS credits remaining.")
+		os.Exit(0)
+	}
+}

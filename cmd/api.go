@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"dehasher/internal/badger"
+	"dehasher/internal/debug"
 	"dehasher/internal/dehashed"
 	"dehasher/internal/sqlite"
 	"fmt"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 func init() {
@@ -116,7 +118,18 @@ var (
 			dehasher.Start()
 			fmt.Println("\n[*] Completing Process")
 
-			sqlite.StoreQueryOptions(queryOptions)
+			err := sqlite.StoreQueryOptions(queryOptions)
+			if err != nil {
+				if debugGlobal {
+					debug.PrintInfo("failed to store query options")
+					debug.PrintError(err)
+				}
+				zap.L().Error("store_query_options",
+					zap.String("message", "failed to store query options"),
+					zap.Error(err),
+				)
+				fmt.Printf("Error storing query options: %v\n", err)
+			}
 		},
 	}
 )

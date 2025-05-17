@@ -271,11 +271,29 @@ The logs can be easily queried from the Dehasher CLI.
 dehasher logs -l 10
 
 # Show logs from the last 24 hours
-dehasher logs -s "24 hours ago"
+dehasher logs -s "last 24 hours"
 
 # Show logs from the last 24 hours with a severity of error or fatal
-dehasher logs -s "24 hours ago" -v error,fatal
+dehasher logs -s "05-01-2025" -v error,fatal
 ```
+
+### Logs Dates
+#### Dehasher utilized 'easy time' to determine the appropriate time for a given query.
+![Alt text](.img/easy_time_parsing.png "Easy Time")
+#### You may also used dates mixed with easy time to perform queries.
+![Alt text](.img/easy_time_query_2.png "Mixed Time")
+#### The following formats are supported:
+- `last 24 hours`
+- `last 2 days`
+- `30 minutes ago`
+- `45 seconds ago`
+- `1 week ago`
+- `05-01-2025`
+- `05/01/2025`
+- `05/01/25`
+- `05-01-25`
+- `May 01, 2025`
+
 ## 🎉 Sample Run
 ```bash
 ar1ste1a@kali:~$ dehasher api -D <redacted>.com -o <redacted> -f json
