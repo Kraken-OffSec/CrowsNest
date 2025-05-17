@@ -2,7 +2,7 @@
     <img src=.img/crowsnest.png  style="width: 500px; height: auto" alt="Ar1ste1a" title="CrowsNest Logo">
 </div>
 
-### A CLI tool for seamless interaction with the Dehashed API
+### A CLI tool for seamless interaction with the Dehashed and Hunter.io APIs.
 
 ---
 
@@ -19,6 +19,8 @@
 - **API Key Management**: Securely store and manage API keys.
 - **Formatted Output**: Easy to read and understand.
 - **Intuitive Database Querying**: Query for specific information.
+- **Person and Company Enrichment**: Retrieve detailed information about people and companies.
+- **Email Verification**: Verify the existence and quality of email addresses.
 
 ---
 
@@ -29,15 +31,6 @@ To begin, clone the repository
 git clone https://github.com/Ar1ste1a/CrowsNest.git
 cd crowsnest
 go build crowsnest.go
-```
-
----
-
-## 🛠️ Initial Setup
-
-CrowsNest requires an API key from Dehashed. Set it up with:
-```bash
-ar1ste1a@kali:~$ crowsnest set-dehashed <redacted>
 ```
 
 ---
@@ -63,7 +56,14 @@ To configure the database location:
 
 ---
 
-## 🔍 Crafting Queries
+## Dehashed
+
+###️ Initial Setup
+
+CrowsNest requires an API key from Dehashed. Set it up with:
+```bash
+ar1ste1a@kali:~$ crowsnest set-dehashed <redacted>
+```
 
 ### Simple Query
 CrowsNest can be used simply for example to query for credentials matching a given email domain.
