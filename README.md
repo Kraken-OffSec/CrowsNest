@@ -210,6 +210,70 @@ dehasher whois -d google.com -s
 
 ---
 
+## 🌐 Hunter.io
+Dehasher supports Hunter.io lookups.  
+Hunter.io lookups require a separate API Key from the Dehashed API.
+This can be set using the `set-hunter` command.
+```bash
+# Set the Hunter.io API key
+dehasher set-hunter <redacted>
+```
+
+### Domain Search
+Dehasher can perform a domain search for a given domain.  
+This provides a list of all emails that match the given query.
+![Alt text](.img/hunter_domain_search.png "Hunter.io Domain Search")
+```bash
+# Perform a Hunter.io domain search for example.com
+dehasher hunter -d example.com -D
+```
+
+### Email Finder
+Dehasher can perform an email finder search for a given domain, first name, and last name.  
+This provides a list of all emails that match the given query.
+![Alt text](.img/hunter_email_finder.png "Hunter.io Email Finder")
+```bash
+# Perform a Hunter.io email finder search for example.com
+dehasher hunter -d example.com -F John -L Doe -E
+```
+
+### Email Verification
+Dehasher can perform an email verification search for a given email.  
+This provides a list of all emails that match the given query.
+![Alt text](.img/hunter_email_verification.png "Hunter.io Email Verification")
+```bash
+# Perform a Hunter.io email verification search for example@target.com
+dehasher hunter -e example@target.com -V
+```
+
+### Company Enrichment
+Dehasher can perform a company enrichment search for a given domain.  
+This provides a list of all emails that match the given query.
+![Alt text](.img/hunter_company_enrichment.png "Hunter.io Company Enrichment")
+```bash
+# Perform a Hunter.io company enrichment search for example.com
+dehasher hunter -d example.com -C
+```
+
+### Person Enrichment
+Dehasher can perform a person enrichment search for a given email.  
+This provides a list of all emails that match the given query.
+![Alt text](.img/hunter_person_enrichment.png "Hunter.io Person Enrichment")
+```bash
+# Perform a Hunter.io person enrichment search for example@target.com
+dehasher hunter -e example@target.com -P
+```
+
+### Combined Enrichment
+Dehasher can perform a combined enrichment search for a given email.  
+This provides a list of all emails that match the given query.
+![Alt text](.img/hunter_combined_enrichment.png "Hunter.io Combined Enrichment")
+```bash
+# Perform a Hunter.io combined enrichment search for example@target.com
+dehasher hunter -e example@target.com -B
+```
+
+---
 ## 📊 Database Querying
 Dehasher stores query results in a local database.  
 This database can be queried for previous results.
@@ -267,6 +331,10 @@ The current tables available for query are:
   - Previous query runs to the dehashed API
 - lookup 
   - Results of any Whois NS, MX, or IP lookup
+- hunter_domain
+  - Results from a hunter.io domain search
+- hunter_email
+  - Results extracted from a domain saerch and email finder.
 
 ---
 

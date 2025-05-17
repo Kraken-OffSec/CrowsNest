@@ -44,6 +44,15 @@ var availableTables = map[string][]string{
 		"name_servers", "parse_code", "raw_text", "registrant", "registrar_iana_id", "registrar_name", "registry_data",
 		"status", "stripped_text", "updated_date", "updated_date_normalized",
 	},
+	"hunter_domain": {
+		"id", "created_at", "updated_at", "deleted_at", "domain", "disposable", "webmail", "accept_all", "pattern",
+		"organization", "description", "industry", "twitter", "facebook", "linkedin", "instagram", "youtube",
+		"technologies", "country", "state", "city", "postal_code", "street", "headcount", "company_type", "emails", "linked_domains",
+	},
+	"hunter_email": {
+		"id", "created_at", "updated_at", "deleted_at", "value", "type", "confidence", "sources", "first_name", "last_name",
+		"position", "position_raw", "seniority", "department", "linkedin", "twitter", "phone_number", "verification_date", "verification_status",
+	},
 }
 
 // Function to list available tables and their columns

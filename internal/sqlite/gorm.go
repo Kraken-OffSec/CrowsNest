@@ -51,7 +51,8 @@ func InitDB(dbPath string) (*gorm.DB, error) {
 	}
 
 	// Auto migrate your models
-	err = db.AutoMigrate(&Result{}, &Creds{}, &QueryOptions{}, &Creds{}, &WhoisRecord{}, &SubdomainRecord{}, &HistoryRecord{}, &LookupResult{})
+	err = db.AutoMigrate(&Result{}, &Creds{}, &QueryOptions{}, &Creds{}, &WhoisRecord{}, &SubdomainRecord{},
+		&HistoryRecord{}, &LookupResult{}, &HunterDomainData{}, &HunterEmail{}, &PersonData{})
 	if err != nil {
 		zap.L().Error("Failed to migrate database", zap.Error(err))
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
@@ -254,4 +255,65 @@ func StoreIPLookup(ipLookup []LookupResult) error {
 	}
 
 	return lastErr
+}
+
+func StoreHunterDomain(hunterDomain HunterDomainData) error {
+	db := GetDB()
+
+	// Use OnConflict clause to handle duplicates
+	err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&hunterDomain).Error
+	if err != nil {
+		zap.L().Error("store_hunter_domain",
+			zap.String("message", "failed to store hunter domain"),
+			zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func StoreHunterEmails(hunterEmails []HunterEmail) error {
+	if len(hunterEmails) == 0 {
+		return nil
+	}
+
+	zap.L().Info("Storing hunter emails", zap.Int("count", len(hunterEmails)))
+	db := GetDB()
+
+	// Use batch insert with conflict handling
+	const batchSize = 100
+	var lastErr error
+
+	for i := 0; i < len(hunterEmails); i += batchSize {
+		end := i + batchSize
+		if end > len(hunterEmails) {
+			end = len(hunterEmails)
+		}
+
+		batch := hunterEmails[i:end]
+		// Use Clauses with OnConflict DoNothing to skip conflicts
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
+		if err != nil {
+			zap.L().Warn("Error storing some hunter emails", zap.Error(err))
+			lastErr = err
+			// Continue with next batch despite error
+		}
+	}
+
+	return lastErr
+}
+
+func StorePersonData(personData PersonData) error {
+	db := GetDB()
+
+	// Use OnConflict clause to handle duplicates
+	err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&personData).Error
+	if err != nil {
+		zap.L().Error("store_person_data",
+			zap.String("message", "failed to store person data"),
+			zap.Error(err))
+		return err
+	}
+
+	return nil
 }
