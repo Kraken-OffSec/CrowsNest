@@ -28,7 +28,7 @@
 
 To begin, clone the repository
 ``` bash-session
-git clone https://github.com/Ar1ste1a/CrowsNest.git
+git clone https://github.com/Kraken-OffSec/CrowsNest.git
 cd crowsnest
 go build crowsnest.go
 ```
