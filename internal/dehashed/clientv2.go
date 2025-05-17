@@ -166,7 +166,11 @@ func (dcv2 *DehashedClientV2) Search(searchRequest DehashedSearchRequest) (int, 
 			zap.String("message", "preparing search request"),
 		)
 	}
-	reqBody, _ := json.Marshal(searchRequest)
+
+	// Create a copy of the search request to avoid modifying the original
+	requestCopy := searchRequest
+
+	reqBody, _ := json.Marshal(requestCopy)
 
 	if dcv2.debug {
 		j := string(reqBody)

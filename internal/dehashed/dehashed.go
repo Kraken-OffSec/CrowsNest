@@ -3,11 +3,12 @@ package dehashed
 import (
 	"crowsnest/internal/debug"
 	"crowsnest/internal/export"
+	"crowsnest/internal/pretty"
 	"crowsnest/internal/sqlite"
-	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"
 	"os"
+	"strings"
 )
 
 // Dehasher is a struct for querying the Dehashed API
@@ -208,12 +209,10 @@ func (dh *Dehasher) buildRequest() {
 
 // parseResults parses the results and writes them to a file
 func (dh *Dehasher) parseResults() {
-	var data []byte
-
 	zap.L().Info("extracting_credentials")
 	results := dh.client.GetResults()
 	creds := results.ExtractCredentials()
-	fmt.Printf("\n\t[+] Discovered %d Credentials", len(creds))
+	fmt.Printf("   [+] Discovered %d Credentials\n", len(creds))
 	err := sqlite.StoreDehashedCreds(creds)
 	if err != nil {
 		zap.L().Error("store_creds",
@@ -234,28 +233,93 @@ func (dh *Dehasher) parseResults() {
 	zap.L().Info("results_stored", zap.Int("count", len(results.Results)))
 
 	if len(results.Results) > 0 {
-		fmt.Printf("\n\t[*] Writing entries to file: %s.%s", dh.options.OutputFile, dh.options.OutputFormat.String())
+		var (
+			headers = []string{"Email", "Username", "Password"}
+			rows    [][]string
+		)
+
+		fmt.Printf("   [*] Writing entries to file: %s.%s\n", dh.options.OutputFile, dh.options.OutputFormat.String())
 		if !dh.options.CredsOnly {
 			err := export.WriteToFile(results, dh.options.OutputFile, dh.options.OutputFormat)
 			if err != nil {
-				fmt.Printf("\n[!] Error Writing to file: %v\n\tOutputting to terminal.", err)
-				data, err = json.MarshalIndent(results, "", "  ")
-				fmt.Println(string(data))
-				os.Exit(0)
+				fmt.Printf("[!] Error Writing to file: %v      Outputting to terminal.\n", err)
+				zap.L().Error("write_results",
+					zap.String("message", "failed to write results to file"),
+					zap.Error(err),
+				)
 			} else {
-				fmt.Println("\n\t\t[*] Success\n")
+				fmt.Println("      [*] Success")
 			}
+
+			if dh.debug {
+				debug.PrintInfo("printing results table")
+			}
+
+			headers = []string{"Name", "Email", "Username", "Password", "Address", "Phone", "Social", "Crypto Address", "Company"}
+			if len(results.Results) > 50 {
+				fmt.Println("   [-] Large number of results recovered, displaying first 50...")
+				for i := 0; i < 50; i++ {
+					r := results.Results[i]
+					rows = append(rows, []string{
+						strings.Join(r.Name, ", "), strings.Join(r.Email, ", "),
+						strings.Join(r.Username, ", "), strings.Join(r.Password, ", "),
+						strings.Join(r.Address, ", "), strings.Join(r.Phone, ", "),
+						strings.Join(r.Social, ", "), strings.Join(r.CryptoCurrencyAddress, ", "),
+						strings.Join(r.Company, ", ")})
+				}
+			} else {
+				for _, r := range results.Results {
+					rows = append(rows, []string{
+						strings.Join(r.Name, ", "), strings.Join(r.Email, ", "),
+						strings.Join(r.Username, ", "), strings.Join(r.Password, ", "),
+						strings.Join(r.Address, ", "), strings.Join(r.Phone, ", "),
+						strings.Join(r.Social, ", "), strings.Join(r.CryptoCurrencyAddress, ", "),
+						strings.Join(r.Company, ", ")})
+				}
+			}
+
+			// Print Table
+			pretty.Table(headers, rows)
 		} else {
+			if dh.debug {
+				debug.PrintInfo("extracting credentials")
+			}
 			creds := results.ExtractCredentials()
+			if dh.debug {
+				debug.PrintInfo("writing credentials to file")
+			}
 			err := export.WriteCredsToFile(creds, dh.options.OutputFile, dh.options.OutputFormat)
 			if err != nil {
-				fmt.Printf("\n[!] Error Writing to file: %v\n\tOutputting to terminal.", err)
-				data, err = json.MarshalIndent(creds, "", "  ")
-				fmt.Println(string(data))
-				os.Exit(0)
+				fmt.Printf("[!] Error Writing to file: %v\n   Outputting to terminal.", err)
+				zap.L().Error("write_creds",
+					zap.String("message", "failed to write creds to file"),
+					zap.Error(err),
+				)
 			} else {
-				fmt.Println("\n\t\t[*] Success\n")
+				fmt.Println("      [*] Success")
 			}
+
+			if dh.debug {
+				debug.PrintInfo("printing credentials table")
+			}
+
+			headers = []string{"Email", "Username", "Password"}
+			if len(creds) > 50 {
+				fmt.Println("   [-] Large number of results recovered, displaying first 50...")
+				for i := 0; i < 50; i++ {
+					c := creds[i]
+					rows = append(rows, []string{c.Email, c.Username, c.Password})
+				}
+			} else {
+				for _, c := range creds {
+					rows = append(rows, []string{c.Email, c.Username, c.Password})
+				}
+			}
+
+			// Print Table
+			pretty.Table(headers, rows)
 		}
+	} else {
+		fmt.Println("   [-] No results found")
 	}
 }

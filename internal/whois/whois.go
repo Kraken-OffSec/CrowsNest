@@ -298,7 +298,9 @@ func (w *DehashedWhoIs) WhoisHistory(domain string) ([]sqlite.HistoryRecord, err
 	return whois.Data.Records, nil
 }
 
-func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverseType string) (string, error) {
+func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverseType string) (sqlite.ReverseWhoisData, error) {
+	var whois sqlite.ReverseWhoisData
+
 	if w.debug {
 		debug.PrintInfo("performing reverse whois search")
 		zap.L().Info("reverse_whois_debug",
@@ -329,7 +331,7 @@ func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverse
 			zap.String("message", "failed to create request"),
 			zap.Error(err),
 		)
-		return "", err
+		return whois, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -356,7 +358,7 @@ func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverse
 			zap.String("message", "failed to perform request"),
 			zap.Error(err),
 		)
-		return "", err
+		return whois, err
 	}
 	if res == nil {
 		if w.debug {
@@ -365,7 +367,7 @@ func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverse
 		zap.L().Error("reverse_whois",
 			zap.String("message", "response was nil"),
 		)
-		return "", errors.New("response was nil")
+		return whois, errors.New("response was nil")
 	}
 
 	b, err := io.ReadAll(res.Body)
@@ -378,7 +380,7 @@ func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverse
 			zap.String("message", "failed to read response body"),
 			zap.Error(err),
 		)
-		return "", err
+		return whois, err
 	}
 
 	// Check for HTTP status code errors
@@ -396,7 +398,7 @@ func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverse
 			zap.String("error", dhErr.Error()),
 			zap.String("body_error", string(b)),
 		)
-		return "", &dhErr
+		return whois, &dhErr
 	}
 
 	if w.debug {
@@ -404,7 +406,30 @@ func (w *DehashedWhoIs) ReverseWHOIS(include []string, exclude []string, reverse
 		debug.PrintJson(fmt.Sprintf("Body: %s\n", string(b[:])))
 	}
 
-	return string(b), nil
+	var whoisResponse sqlite.ReverseWhoisResponse
+	err = json.Unmarshal(b, &whoisResponse)
+	if err != nil {
+		if w.debug {
+			debug.PrintInfo("failed to unmarshal response body")
+			debug.PrintError(err)
+		}
+		zap.L().Error("reverse_whois",
+			zap.String("message", "failed to unmarshal response body"),
+			zap.Error(err),
+		)
+		return whois, err
+	}
+
+	if w.debug {
+		debug.PrintInfo("unmarshalled response body")
+		debug.PrintJson(fmt.Sprintf("Remaining Credits: %d\n", whoisResponse.RemainingCredits))
+		debug.PrintJson(fmt.Sprintf("Data: %v\n", whoisResponse.Data))
+	}
+	w.balance = whoisResponse.RemainingCredits
+
+	whois = whoisResponse.Data
+
+	return whois, nil
 }
 
 func (w *DehashedWhoIs) WhoisIP(ipAddress string) ([]sqlite.LookupResult, error) {

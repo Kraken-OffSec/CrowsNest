@@ -61,30 +61,25 @@ To configure the database location:
 ###️ Initial Setup
 
 CrowsNest requires an API key from Dehashed. Set it up with:
+![Alt text](.img/set-dehashed.png "Set Dehashed Key")
 ```bash
 ar1ste1a@kali:~$ crowsnest set-dehashed <redacted>
 ```
 
 ### Simple Query
 CrowsNest can be used simply for example to query for credentials matching a given email domain.
+![Alt text](.img/simple_query.png "Simple Query")
 ``` go
 # Provide credentials for domains matching target.com
-crowsnest api -D target.com -C
+crowsnest dehashed -D target.com
 ```
 
 ### Simple Credentials Query
 CrowsNest can also be used to return only credentials for a given query.
+![Alt text](.img/simple_creds_query.png "Creds Only Query")
 ``` go
 # Provide credentials for emails matching @target.com
-crowsnest api -E @target.com -C
-```
-
-### Multiple Match Query
-CrowsNest is capable of handling multiple queries for the same field.  
-This is useful for when you want to search for multiple domains, or multiple usernames.
-``` go
-# Provide credentials for domains matching target.com and target2.com, retrieving only credentials
-crowsnest api -D target.com,target2.com -C
+crowsnest dehashed -D @target.com -C
 ```
 
 ### Wildcard Query
@@ -92,34 +87,46 @@ CrowsNest is capable of handling wildcard queries.
 A wildcard query cannot begin with a wildcard.  
 This is a limitation of the Dehashed API.
 An asterisk can be used to denote multiple characters, and a question mark can be used to denote a single character.
-![Alt text](.img/wildcard_sample.png "Wildcard Query")
+![Alt text](.img/wildcard_query.png "Wildcard Query")
 ``` go
 # Provide credentials for emails matching @target.com and @target2.com
-crowsnest api -E @target?.com -C -W
+crowsnest dehashed -E @target?.com -C -W
 ```
 
 ### Email Query
 Dehashed has dictated that emails should be searched in the following format:
 `email:target.name&domain:target.com`.
 As such, to query an email, please use the following format (note, wildcard is not required but can be useful):
+<br>
+*see photo above in Wildcard Query*
 ``` go
 # Provide credentials for emails matching target.*@target.com
-crowsnest api -W -E 'target*' -D target.com
+crowsnest dehashed -W -E 'target*' -D target.com
 ```
 You may also query the domain and find emails as well
 ``` go
 # Provide credentials for emails matching target.com
-crowsnest api -D target.com -C
+crowsnest dehashed -D target.com -C
 ```
 
+### Combining Queries
+CrowsNest is capable of combining queries.  
+This is useful for when you want to query for credentials matching a given email or domain, but only for a specific username.
+![Alt text](.img/combining_queries.png "Combined Query")
+``` go
+# Provide credentials for emails matching @target.com and username containing 'admin'
+crowsnest dehashed -D target.com -U admin
+```
 
 ### Regex Query
 CrowsNest is capable of handling regex queries.  
 Simply denote regex queries with the `-R` flag.
 Place all regex queries in quotes with the corresponding query flag in single quotes.
+<br>
+!!!! *Currently, the Regex Operators appear to be broken. I am waiting on a response from Dehashed* !!!!
 ``` go
 # Return matches for emails matching this given regex query
-crowsnest api -R -E '[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?@target.com'
+crowsnest dehashed -R -E 'joh?n(ath[oa]n)' -D hotmail.com'
 ```
 
 ### Output Text (default JSON)
@@ -129,7 +136,7 @@ To change the output format, use the `-f` flag.
 CrowsNest currently supports JSON, YAML, XML, and TEXT output formats.
 ``` go
 # Return matches for usernames exactly matching "admin" and write to text file 'admins_file.txt'
-crowsnest api -U admin -o admins_file -f txt
+crowsnest dehashed -U admin -o admins_file -f txt
 ```
 
 ---
@@ -141,7 +148,7 @@ The WhoIs Lookups require a separate API Credit from the Dehashed API.
 ### Domain Lookup
 CrowsNest can perform a domain lookup for a given domain.
 This provides a tree view of the domain's WHOIS information.
-![Alt text](.img/tree_whois_lookup.png "WhoIs Tree View")
+![Alt text](.img/whois_domain.png "WhoIs Tree View")
 ```bash
 # Perform a WHOIS lookup for example.com
 crowsnest whois -d example.com
@@ -156,10 +163,20 @@ The history lookup is immediately written to file and not displayed in the termi
 crowsnest whois -d example.com -H
 ```
 
+### Subdomain Scan
+CrowsNest can perform a subdomain scan for a given domain.  
+This provides a list of all subdomains that match the given query.
+![Alt text](.img/whois_subdomain.png "WhoIs Tree View")
+```bash
+# Perform a WHOIS subdomain scan for google.com
+crowsnest whois -d google.com -s
+```
+
 ### Reverse WHOIS Lookup
 CrowsNest can perform a reverse WHOIS lookup for given criteria.  
 This provides a list of all domains that match the given query.  
-The reverse WHOIS lookup is immediately written to file and not displayed in the terminal or stored in the database.
+The reverse WHOIS lookup is immediately written to file and not stored in the database.
+![Alt text](.img/whois_reverse.png "WhoIs Tree View")
 ```bash
 # Perform a reverse WHOIS lookup for example.com
 crowsnest whois -I example.com
@@ -168,7 +185,7 @@ crowsnest whois -I example.com
 ### IP Lookup
 CrowsNest can perform a reverse IP lookup for a given IP address.  
 This provides a list of all domains that match the given query.
-![Alt text](.img/reverse_ip_lookup.png "WhoIs Tree View")
+![Alt text](.img/whois_ip.png "WhoIs View")
 ```bash
 # Perform a reverse IP lookup for 8.8.8.8
 crowsnest whois -i 8.8.8.8
@@ -177,28 +194,21 @@ crowsnest whois -i 8.8.8.8
 ### MX Lookup
 CrowsNest can perform an MX lookup for a given MX hostname.  
 This provides a list of all domains that match the given query.
-![Alt text](.img/mx_lookup.png "WhoIs Tree View")
+![Alt text](.img/whois_mx.png "WhoIs Tree View")
 ```bash
 # Perform a reverse MX lookup for google.com
-crowsnest whois -m google.com
+crowsnest whois -m stmp.google.com
 ```
 ### NS Lookup
 CrowsNest can perform an NS lookup for a given NS hostname.  
 This provides a list of all domains that match the given query.
 The picture below also includes the --debug global flag.
-![Alt text](.img/debug_ns_search.png "WhoIs Tree View")
+![Alt text](.img/whois_ns.png "WhoIs Tree View")
 ```bash
 # Perform a reverse NS lookup for google.com
 crowsnest whois -n google.com
 ```
-### Subdomain Scan
-CrowsNest can perform a subdomain scan for a given domain.  
-This provides a list of all subdomains that match the given query.
-![Alt text](.img/subdomains_lookup.png "WhoIs Tree View")
-```bash
-# Perform a WHOIS subdomain scan for google.com
-crowsnest whois -d google.com -s
-```
+
 
 ---
 
@@ -206,6 +216,7 @@ crowsnest whois -d google.com -s
 CrowsNest supports Hunter.io lookups.  
 Hunter.io lookups require a separate API Key from the Dehashed API.
 This can be set using the `set-hunter` command.
+![Alt text](.img/set-hunter.png "Set Dehashed Key")
 ```bash
 # Set the Hunter.io API key
 crowsnest set-hunter <redacted>
@@ -214,25 +225,16 @@ crowsnest set-hunter <redacted>
 ### Domain Search
 CrowsNest can perform a domain search for a given domain.  
 This provides information about  company including a description, social media information and any technologies in use.
-![Alt text](.img/hunter_domain_search.png "Hunter.io Domain Search")
+![Alt text](.img/hunter_domain.png "Hunter.io Domain Search")
 ```bash
 # Perform a Hunter.io domain search for example.com
 crowsnest hunter -d example.com -D
 ```
 
-### Email Finder
-CrowsNest can perform an email finder search for a given domain, first name, and last name.  
-This provides information about a user including a confidence score, and any social media accounts linked to a first name, last name and email.
-![Alt text](.img/hunter_email_finder.png "Hunter.io Email Finder")
-```bash
-# Perform a Hunter.io email finder search for example.com
-crowsnest hunter -d example.com -F John -L Doe -E
-```
-
 ### Email Verification
 CrowsNest can perform an email verification search for a given email.  
 This provides a verification and score of a given email address.
-![Alt text](.img/email_verification.png "Hunter.io Email Verification")
+![Alt text](.img/hunter_emailverification.png "Hunter.io Email Verification")
 ```bash
 # Perform a Hunter.io email verification search for example@target.com
 crowsnest hunter -e example@target.com -V
@@ -241,16 +243,25 @@ crowsnest hunter -e example@target.com -V
 ### Company Enrichment
 CrowsNest can perform a company enrichment search for a given domain.  
 This provides information about a company given its domain.
-![Alt text](.img/company_enrichment.png "Hunter.io Company Enrichment")
+![Alt text](.img/hunter_company.png "Hunter.io Company Enrichment")
 ```bash
 # Perform a Hunter.io company enrichment search for example.com
 crowsnest hunter -d example.com -C
 ```
 
+### Email Finder
+CrowsNest can perform an email finder search for a given domain, first name, and last name.  
+This provides information about a user including a confidence score, and any social media accounts linked to a first name, last name and email.
+![Alt text](.img/hunter_emailfind.png "Hunter.io Email Finder")
+```bash
+# Perform a Hunter.io email finder search for example.com
+crowsnest hunter -d example.com -F John -L Doe -E
+```
+
 ### Person Enrichment
 CrowsNest can perform a person enrichment search for a given email.  
 This provides information about a user given an email address..
-![Alt text](.img/person_enrichment.png "Hunter.io Person Enrichment")
+![Alt text](.img/hunter_person.png "Hunter.io Person Enrichment")
 ```bash
 # Perform a Hunter.io person enrichment search for example@target.com
 crowsnest hunter -e example@target.com -P
@@ -376,7 +387,7 @@ crowsnest logs -s "05-01-2025" -v error,fatal
 
 ## 🎉 Sample Run
 ```bash
-ar1ste1a@kali:~$ crowsnest api -D <redacted>.com -o <redacted> -f json
+ar1ste1a@kali:~$ crowsnest dehashed -D <redacted>.com -o <redacted> -f json
 Making 3 Requests for 10000 Records (30000 Total)
 [*] Querying Dehashed API...
 	[*] Performing Request...

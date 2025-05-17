@@ -166,7 +166,7 @@ var (
 				fmt.Println("Email Find Result:")
 
 				var (
-					headers = []string{"Email", "Score", "Domain", "Accept All", "Position", "Twitter", "Linkedin", "Phone Number", "Company", "Sources", "Verification"}
+					headers = []string{"Email", "Score", "Domain", "Accept All", "Position", "Twitter", "Linkedin", "Phone Number", "Company", "Verification"}
 					rows    [][]string
 				)
 
@@ -180,7 +180,6 @@ var (
 					result.LinkedinURL,
 					result.PhoneNumber,
 					result.Company,
-					fmt.Sprintf("%v", result.Sources),
 					fmt.Sprintf("%v", result.Verification),
 				})
 

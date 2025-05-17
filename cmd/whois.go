@@ -26,7 +26,7 @@ func init() {
 	whoisCmd.Flags().StringVarP(&whoisNSAddress, "ns", "n", "", "NS hostname for reverse NS lookup")
 	whoisCmd.Flags().StringVarP(&whoisInclude, "include", "I", "", "Up to 4 Terms to include in reverse WHOIS search (comma-separated)")
 	whoisCmd.Flags().StringVarP(&whoisExclude, "exclude", "E", "", "Up to 4 Terms to exclude in reverse WHOIS search (comma-separated)")
-	whoisCmd.Flags().StringVarP(&whoisReverseType, "type", "t", "registrant", "Type of reverse WHOIS search ([default] current or historic)")
+	whoisCmd.Flags().StringVarP(&whoisReverseType, "type", "t", "current", "Type of reverse WHOIS search ([default] current or historic)")
 	whoisCmd.Flags().StringVarP(&whoisOutputFormat, "format", "f", "text", "Output format (text, json)")
 	whoisCmd.Flags().StringVarP(&whoisOutputFile, "output", "o", "whois", "File to output results to including extension")
 	whoisCmd.Flags().BoolVarP(&whoisShowCredits, "credits", "c", false, "Show remaining WHOIS credits")
@@ -118,57 +118,59 @@ var (
 			if whoisDomain != "" {
 				fmt.Println("[*] Performing WHOIS lookup...")
 
-				// Domain lookup
-				result, err := w.WhoisSearch(whoisDomain)
-				if err != nil {
-					if debugGlobal {
-						debug.PrintInfo("failed to perform whois search")
-						debug.PrintError(err)
+				if !whoisHistory && !whoisSubdomainScan {
+					// Domain lookup
+					result, err := w.WhoisSearch(whoisDomain)
+					if err != nil {
+						if debugGlobal {
+							debug.PrintInfo("failed to perform whois search")
+							debug.PrintError(err)
+						}
+						zap.L().Error("whois_search",
+							zap.String("message", "failed to perform whois search"),
+							zap.Error(err),
+						)
+						fmt.Printf("Error performing WHOIS lookup: %v\n", err)
+						return
 					}
-					zap.L().Error("whois_search",
-						zap.String("message", "failed to perform whois search"),
-						zap.Error(err),
-					)
-					fmt.Printf("Error performing WHOIS lookup: %v\n", err)
-					return
-				}
 
-				if whoisShowCredits {
-					checkBalance(w)
-				}
-
-				// Fix the output format to use proper formatting
-				fmt.Println("WHOIS Lookup Result:")
-
-				// Store the record
-				err = sqlite.StoreWhoisRecord(result)
-				if err != nil {
-					if debugGlobal {
-						debug.PrintInfo("failed to store whois record")
-						debug.PrintError(err)
+					if whoisShowCredits {
+						checkBalance(w)
 					}
-					zap.L().Error("store_whois_record",
-						zap.String("message", "failed to store whois record"),
-						zap.Error(err),
-					)
-					fmt.Printf("Error storing WHOIS record: %v\n", err)
-					// Continue execution even if storage fails
-				}
 
-				// Pretty Print WhoIs Record
-				pretty.WhoIsTree(whoisDomain, result)
+					// Fix the output format to use proper formatting
+					fmt.Println("WHOIS Lookup Result:")
 
-				// Write WhoIs Record to file
-				if len(result.DomainName) != 0 {
-					fmt.Printf("[*] Writing WHOIS record to file: %s%s\n", whoisOutputFile, fType.Extension())
-					err = export.WriteWhoIsRecordToFile(result, whoisOutputFile, fType)
-				} else {
-					if debugGlobal {
-						debug.PrintInfo("no whois record to write to file")
+					// Store the record
+					err = sqlite.StoreWhoisRecord(result)
+					if err != nil {
+						if debugGlobal {
+							debug.PrintInfo("failed to store whois record")
+							debug.PrintError(err)
+						}
+						zap.L().Error("store_whois_record",
+							zap.String("message", "failed to store whois record"),
+							zap.Error(err),
+						)
+						fmt.Printf("Error storing WHOIS record: %v\n", err)
+						// Continue execution even if storage fails
 					}
-					zap.L().Info("write_whois_record",
-						zap.String("message", "no whois record to write to file"),
-					)
+
+					// Pretty Print WhoIs Record
+					pretty.WhoIsTree(whoisDomain, result)
+
+					// Write WhoIs Record to file
+					if len(result.DomainName) != 0 {
+						fmt.Printf("[*] Writing WHOIS record to file: %s%s\n", whoisOutputFile, fType.Extension())
+						err = export.WriteWhoIsRecordToFile(result, whoisOutputFile, fType)
+					} else {
+						if debugGlobal {
+							debug.PrintInfo("no whois record to write to file")
+						}
+						zap.L().Info("write_whois_record",
+							zap.String("message", "no whois record to write to file"),
+						)
+					}
 				}
 
 				if whoisHistory {
@@ -253,7 +255,6 @@ var (
 						)
 						fmt.Printf("Error performing subdomain scan: %v\n", err)
 					} else {
-						fmt.Println("Subdomain Scan:")
 						err = sqlite.StoreWhoisSubdomainRecords(subdomains)
 						if err != nil {
 							if debugGlobal {
@@ -290,6 +291,7 @@ var (
 							}
 
 							// Store the subdomains
+							fmt.Println("Subdomain Scan:")
 							pretty.Table(headers, rows)
 
 						} else {
@@ -492,6 +494,12 @@ var (
 			}
 
 			if whoisInclude != "" || whoisExclude != "" {
+				if debugGlobal {
+					debug.PrintInfo("performing reverse whois")
+					debug.PrintInfo("include: " + whoisInclude)
+					debug.PrintInfo("exclude: " + whoisExclude)
+					debug.PrintInfo("reverse type: " + whoisReverseType)
+				}
 				// Reverse WHOIS
 				includeTerms := []string{}
 				if whoisInclude != "" {
@@ -511,17 +519,10 @@ var (
 					}
 				}
 
-				if whoisReverseType == "" {
-					if debugGlobal {
-						debug.PrintInfo("reverse type not specified, using default")
-					}
-					whoisReverseType = "current"
-				} else {
-					toLower := strings.ToLower(whoisReverseType)
-					if toLower != "current" && toLower != "historic" {
-						fmt.Println("[!] Error: Invalid reverse type. Must be 'current' or 'historic'.")
-						return
-					}
+				toLower := strings.ToLower(whoisReverseType)
+				if toLower != "current" && toLower != "historic" {
+					fmt.Println("[!] Error: Invalid reverse type. Must be 'current' or 'historic'.")
+					return
 				}
 
 				fmt.Println("[*] Performing reverse WHOIS lookup...")
@@ -538,8 +539,42 @@ var (
 					fmt.Printf("Error performing reverse WHOIS: %v\n", err)
 					return
 				}
-				fmt.Println("Reverse WHOIS Result:")
-				fmt.Println(result)
+
+				// Write to file
+				if len(result.DomainsList) > 0 {
+					fmt.Printf("[*] Writing reverse WHOIS results to file: %s%s\n", whoisOutputFile, fType.Extension())
+					err = export.WriteIStringToFile(result, whoisOutputFile, fType)
+					if err != nil {
+						if debugGlobal {
+							debug.PrintInfo("failed to write reverse whois to file")
+							debug.PrintError(err)
+						}
+						zap.L().Error("write_reverse_whois",
+							zap.String("message", "failed to write reverse whois to file"),
+							zap.Error(err),
+						)
+						fmt.Printf("Error writing reverse WHOIS to file: %v\n", err)
+					}
+
+					fmt.Println("Reverse WHOIS Result:")
+					fmt.Printf("Total Domains: %d\n", result.DomainsCount)
+
+					var (
+						headers = []string{"Domain"}
+						rows    [][]string
+					)
+
+					for _, r := range result.DomainsList {
+						rows = append(rows, []string{r})
+					}
+
+					pretty.Table(headers, rows)
+				} else {
+					fmt.Println("[!] No results found")
+					zap.L().Info("reverse_whois",
+						zap.String("message", "no results found"),
+					)
+				}
 
 				if whoisShowCredits {
 					checkBalance(w)

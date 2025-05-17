@@ -628,3 +628,20 @@ func StoreWhoisLookup(lookup []LookupResult) error {
 
 	return lastErr
 }
+
+// ReverseWhoisResponse represents the response from a reverse WHOIS lookup
+type ReverseWhoisResponse struct {
+	RemainingCredits int              `json:"remaining_credits"`
+	Data             ReverseWhoisData `json:"data"`
+}
+
+// ReverseWhoisData contains the domain count and list from a reverse WHOIS lookup
+type ReverseWhoisData struct {
+	DomainsCount        int      `json:"domainsCount"`
+	DomainsList         []string `json:"domainsList"`
+	NextPageSearchAfter *string  `json:"nextPageSearchAfter"`
+}
+
+func (rwd ReverseWhoisData) String() string {
+	return fmt.Sprintf("Domains Count: %d\nDomains List: %v\nNext Page Search After: %v\n", rwd.DomainsCount, rwd.DomainsList, rwd.NextPageSearchAfter)
+}
