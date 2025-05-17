@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"dehasher/internal/badger"
+	"crowsnest/internal/badger"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"os"
@@ -18,28 +19,14 @@ var (
 		Use:   "dehasher",
 		Short: `Dehasher is a cli tool for querying the dehashed api.`,
 		Long: fmt.Sprintf(
-			"%s\n%s",
+			"%s\n",
 			`
- ______   _______           _______  _______           _______  _______
-(  __  \ (  ____ \|\     /|(  ___  )(  ____ \|\     /|(  ____ \(  ____ )
-| (  \  )| (    \/| )   ( || (   ) || (    \/| )   ( || (    \/| (    )|
-| |   ) || (__    | (___) || (___) || (_____ | (___) || (__    | (____)|
-| |   | ||  __)   |  ___  ||  ___  |(_____  )|  ___  ||  __)   |     __)
-| |   ) || (      | (   ) || (   ) |      ) || (   ) || (      | (\ (
-| (__/  )| (____/\| )   ( || )   ( |/\____) || )   ( || (____/\| ) \ \__
-(______/ (_______/|/     \||/     \|\_______)|/     \|(_______/|/   \__/
-						     An Ar1ste1a Project
-`,
-			`––•–√\/––√\/––•––––•–√\/––√\/––•––––•–√\/––√\/––•––√\/––•––––•–√\/––√\/––•––
-  Dehasher can query the query API for:
-  - Emails		- Usernames 		- Password
-  - Hashes 		- IP Addresses		- Names
-  - VINs		- License Plates	- Addresses
-  - Phones		- Social Media		- Crypto Currency Addresses
-  Dehasher supports:
-  - Regex Matching
-  - Exact Matching
-––•–√\/––√\/––•––––•–√\/––√\/––•––––•–√\/––√\/––•––√\/––•––––•–√\/––√\/––•––
+    ╔═╗┬─┐┌─┐┬ ┬┌─┐╔╗╔┌─┐┌─┐┌┬┐
+    ║  ├┬┘│ ││││└─┐║║║├┤ └─┐ │
+    ╚═╝┴└─└─┘└┴┘└─┘╝╚╝└─┘└─┘ ┴
+
+   Crow’s Nest OSINT Recon Suite
+ ⚓ A KrakenTech Intelligence Tool
 `,
 		),
 		Version: "v1.2.1",
@@ -69,6 +56,7 @@ func init() {
 	rootCmd.AddCommand(setDehashedKeyCmd)
 	rootCmd.AddCommand(setHunterKeyCmd)
 	rootCmd.AddCommand(setLocalDb)
+	rootCmd.AddCommand(buyMeCoffeeCmd)
 }
 
 // Command to set API key
@@ -129,6 +117,20 @@ var setLocalDb = &cobra.Command{
 			return
 		}
 		fmt.Println("Local database useLocal stored successfully")
+	},
+}
+
+var buyMeCoffeeCmd = &cobra.Command{
+	Use:   "coffee",
+	Short: "Support the project by buying a coffee",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(color.HiRedString("                                                                                   ;)(; "))
+		fmt.Println(color.HiCyanString("                   We Hope You Enjoy Our Product                                  :----:"))
+		fmt.Println(color.HiCyanString("                                                                                 C|====|"))
+		fmt.Println(color.HiCyanString("                                                                                  |    |"))
+		fmt.Print(color.HiGreenString(" Support the project by buying a coffee: "))
+		fmt.Print(color.BlueString("https://buymeacoffee.com/ehosinskiz      "))
+		fmt.Println(color.HiCyanString("`----'"))
 	},
 }
 

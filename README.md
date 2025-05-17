@@ -221,7 +221,7 @@ dehasher set-hunter <redacted>
 
 ### Domain Search
 Dehasher can perform a domain search for a given domain.  
-This provides a list of all emails that match the given query.
+This provides information about  company including a description, social media information and any technologies in use.
 ![Alt text](.img/hunter_domain_search.png "Hunter.io Domain Search")
 ```bash
 # Perform a Hunter.io domain search for example.com
@@ -230,7 +230,7 @@ dehasher hunter -d example.com -D
 
 ### Email Finder
 Dehasher can perform an email finder search for a given domain, first name, and last name.  
-This provides a list of all emails that match the given query.
+This provides information about a user including a confidence score, and any social media accounts linked to a first name, last name and email.
 ![Alt text](.img/hunter_email_finder.png "Hunter.io Email Finder")
 ```bash
 # Perform a Hunter.io email finder search for example.com
@@ -239,7 +239,7 @@ dehasher hunter -d example.com -F John -L Doe -E
 
 ### Email Verification
 Dehasher can perform an email verification search for a given email.  
-This provides a list of all emails that match the given query.
+This provides a verification and score of a given email address.
 ![Alt text](.img/email_verification.png "Hunter.io Email Verification")
 ```bash
 # Perform a Hunter.io email verification search for example@target.com
@@ -248,7 +248,7 @@ dehasher hunter -e example@target.com -V
 
 ### Company Enrichment
 Dehasher can perform a company enrichment search for a given domain.  
-This provides a list of all emails that match the given query.
+This provides information about a company given its domain.
 ![Alt text](.img/company_enrichment.png "Hunter.io Company Enrichment")
 ```bash
 # Perform a Hunter.io company enrichment search for example.com
@@ -257,7 +257,7 @@ dehasher hunter -d example.com -C
 
 ### Person Enrichment
 Dehasher can perform a person enrichment search for a given email.  
-This provides a list of all emails that match the given query.
+This provides information about a user given an email address..
 ![Alt text](.img/person_enrichment.png "Hunter.io Person Enrichment")
 ```bash
 # Perform a Hunter.io person enrichment search for example@target.com
@@ -266,7 +266,7 @@ dehasher hunter -e example@target.com -P
 
 ### Combined Enrichment
 Dehasher can perform a combined enrichment search for a given email.  
-This provides a list of all emails that match the given query.
+This is a combination of the company and person enrichments given an email address.
 ![Alt text](.img/combined_enrichment_1.png "Hunter.io Combined Enrichment")
 ![Alt text](.img/combined_enrichment_2.png "Hunter.io Combined Enrichment")
 ```bash

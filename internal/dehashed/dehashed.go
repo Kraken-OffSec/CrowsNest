@@ -1,9 +1,9 @@
 package dehashed
 
 import (
-	"dehasher/internal/debug"
-	"dehasher/internal/export"
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/export"
+	"crowsnest/internal/sqlite"
 	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"
@@ -130,7 +130,7 @@ func (dh *Dehasher) Start() {
 
 			if len(dh.client.results) > 0 {
 				fmt.Printf("   [!] Partial results retrieved. Storing Results...\n")
-				err := sqlite.StoreResults(dh.client.GetResults())
+				err := sqlite.StoreDehashedResults(dh.client.GetResults())
 				if err != nil {
 					zap.L().Error("store_results",
 						zap.String("message", "failed to store results"),
@@ -214,7 +214,7 @@ func (dh *Dehasher) parseResults() {
 	results := dh.client.GetResults()
 	creds := results.ExtractCredentials()
 	fmt.Printf("\n\t[+] Discovered %d Credentials", len(creds))
-	err := sqlite.StoreCreds(creds)
+	err := sqlite.StoreDehashedCreds(creds)
 	if err != nil {
 		zap.L().Error("store_creds",
 			zap.String("message", "failed to store creds"),
@@ -224,7 +224,7 @@ func (dh *Dehasher) parseResults() {
 	zap.L().Info("creds_stored", zap.Int("count", len(creds)))
 
 	zap.L().Info("storing_results")
-	err = sqlite.StoreResults(results)
+	err = sqlite.StoreDehashedResults(results)
 	if err != nil {
 		zap.L().Error("store_results",
 			zap.String("message", "failed to store results"),

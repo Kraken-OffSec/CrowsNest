@@ -2,9 +2,9 @@ package whois
 
 import (
 	"bytes"
-	"dehasher/internal/debug"
-	"dehasher/internal/dehashed"
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/dehashed"
+	"crowsnest/internal/sqlite"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -552,7 +552,7 @@ func (w *DehashedWhoIs) WhoisIP(ipAddress string) ([]sqlite.LookupResult, error)
 		})
 	}
 
-	sqlite.StoreIPLookup(lookups)
+	sqlite.StoreWhoisLookup(lookups)
 
 	return lookups, nil
 }
@@ -702,7 +702,7 @@ func (w *DehashedWhoIs) WhoisMX(mxHostname string) ([]sqlite.LookupResult, error
 		})
 	}
 
-	sqlite.StoreIPLookup(mxLookups)
+	sqlite.StoreWhoisLookup(mxLookups)
 
 	return mxLookups, nil
 }
@@ -849,7 +849,7 @@ func (w *DehashedWhoIs) WhoisNS(nsHostname string) ([]sqlite.LookupResult, error
 		})
 	}
 
-	sqlite.StoreIPLookup(nsLookups)
+	sqlite.StoreWhoisLookup(nsLookups)
 
 	return nsLookups, nil
 }

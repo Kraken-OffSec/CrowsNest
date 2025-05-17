@@ -3,7 +3,9 @@ package sqlite
 import (
 	"fmt"
 	"github.com/charmbracelet/lipgloss/tree"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // HunterDomainSearchResult represents the response from Hunter.io domain search API
@@ -15,6 +17,7 @@ type HunterDomainSearchResult struct {
 // HunterDomainData contains the main domain information
 type HunterDomainData struct {
 	gorm.Model
+	IString       `gorm:"-"`
 	Domain        string        `json:"domain" gorm:"unique"`
 	Disposable    bool          `json:"disposable"`
 	Webmail       bool          `json:"webmail"`
@@ -40,7 +43,7 @@ type HunterDomainData struct {
 	LinkedDomains []string      `json:"linked_domains" gorm:"serializer:json"`
 }
 
-func (h *HunterDomainData) String() string {
+func (h HunterDomainData) String() string {
 	return fmt.Sprintf("Domain: %s\nDisposable: %t\nWebmail: %t\nAcceptAll: %t\nPattern: %s\nOrganization: %s\nDescription: %s\nIndustry: %s\nTwitter: %s\nFacebook: %s\nLinkedin: %s\nInstagram: %s\nYoutube: %s\nTechnologies: %v\nCountry: %s\nState: %s\nCity: %s\nPostalCode: %s\nStreet: %s\nHeadcount: %s\nCompanyType: %s\nEmails: %v\nLinkedDomains: %v\n",
 		h.Domain, h.Disposable, h.Webmail, h.AcceptAll, h.Pattern, h.Organization, h.Description, h.Industry, h.Twitter, h.Facebook, h.Linkedin, h.Instagram, h.Youtube, h.Technologies, h.Country, h.State, h.City, h.PostalCode, h.Street, h.Headcount, h.CompanyType, h.Emails, h.LinkedDomains)
 }
@@ -142,6 +145,7 @@ type HunterEmailFinderResponse struct {
 
 // HunterEmailFinderData contains the main email information
 type HunterEmailFinderData struct {
+	IString
 	FirstName    string             `json:"first_name"`
 	LastName     string             `json:"last_name"`
 	Email        string             `json:"email"`
@@ -157,7 +161,7 @@ type HunterEmailFinderData struct {
 	Verification HunterVerification `json:"verification" gorm:"embedded;embeddedPrefix:verification_"`
 }
 
-func (he *HunterEmailFinderData) String() string {
+func (he HunterEmailFinderData) String() string {
 	return fmt.Sprintf("FirstName: %s\nLastName: %s\nEmail: %s\nScore: %d\nDomain: %s\nAcceptAll: %t\nPosition: %s\nTwitter: %s\nLinkedinURL: %s\nPhoneNumber: %s\nCompany: %s\nSources: %v\nVerification: %v\n",
 		he.FirstName, he.LastName, he.Email, he.Score, he.Domain, he.AcceptAll, he.Position, he.Twitter, he.LinkedinURL, he.PhoneNumber, he.Company, he.Sources, he.Verification)
 }
@@ -189,6 +193,7 @@ type HunterEmailVerifyResponse struct {
 
 // HunterEmailVerifyData contains the email verification information
 type HunterEmailVerifyData struct {
+	IString
 	Status            string         `json:"status"`
 	Result            string         `json:"result"`
 	DeprecationNotice string         `json:"_deprecation_notice"`
@@ -206,7 +211,7 @@ type HunterEmailVerifyData struct {
 	Sources           []HunterSource `json:"sources" gorm:"serializer:json"`
 }
 
-func (ev *HunterEmailVerifyData) String() string {
+func (ev HunterEmailVerifyData) String() string {
 	return fmt.Sprintf("Status: %s\nResult: %s\nDeprecationNotice: %s\nScore: %d\nEmail: %s\nRegexp: %t\nGibberish: %t\nDisposable: %t\nWebmail: %t\nMXRecords: %t\nSMTPServer: %t\nSMTPCheck: %t\nAcceptAll: %t\nBlock: %t\nSources: %v\n",
 		ev.Status, ev.Result, ev.DeprecationNotice, ev.Score, ev.Email, ev.Regexp, ev.Gibberish, ev.Disposable, ev.Webmail, ev.MXRecords, ev.SMTPServer, ev.SMTPCheck, ev.AcceptAll, ev.Block, ev.Sources)
 }
@@ -229,6 +234,7 @@ type HunterCompanyEnrichmentResponse struct {
 
 // CompanyData contains the detailed company information
 type CompanyData struct {
+	IString
 	ID             string        `json:"id"`
 	Name           string        `json:"name"`
 	LegalName      string        `json:"legalName"`
@@ -262,7 +268,7 @@ type CompanyData struct {
 	UltimateParent ParentCompany `json:"ultimateParent" gorm:"embedded;embeddedPrefix:ultimate_parent_"`
 }
 
-func (cd *CompanyData) String() string {
+func (cd CompanyData) String() string {
 	return fmt.Sprintf("ID: %s\nName: %s\nLegalName: %s\nDomain: %s\nDomainAliases: %v\nSite: %v\nCategory: %v\nTags: %v\nDescription: %s\nFoundedYear: %d\nLocation: %s\nTimeZone: %s\nUTCOffset: %d\nGeo: %v\nLogo: %s\nFacebook: %v\nLinkedIn: %v\nTwitter: %v\nCrunchbase: %v\nYouTube: %v\nEmailProvider: %s\nType: %s\nTicker: %s\nIdentifiers: %v\nPhone: %s\nMetrics: %v\nIndexedAt: %s\nTech: %v\nTechCategories: %v\nParent: %v\nUltimateParent: %v\n",
 		cd.ID, cd.Name, cd.LegalName, cd.Domain, cd.DomainAliases, cd.Site, cd.Category, cd.Tags, cd.Description, cd.FoundedYear, cd.Location, cd.TimeZone, cd.UTCOffset, cd.Geo, cd.Logo, cd.Facebook, cd.LinkedIn, cd.Twitter, cd.Crunchbase, cd.YouTube, cd.EmailProvider, cd.Type, cd.Ticker, cd.Identifiers, cd.Phone, cd.Metrics, cd.IndexedAt, cd.Tech, cd.TechCategories, cd.Parent, cd.UltimateParent)
 }
@@ -509,6 +515,7 @@ type HunterPersonEnrichmentResponse struct {
 // PersonData contains the detailed person information
 type PersonData struct {
 	gorm.Model
+	IString       `gorm:"-"`
 	ID            string     `json:"id"`
 	Name          PersonName `json:"name" gorm:"embedded;embeddedPrefix:name_"`
 	Email         string     `json:"email" gorm:"unique"`
@@ -534,7 +541,7 @@ type PersonData struct {
 	InactiveAt    string     `json:"inactiveAt"`
 }
 
-func (pd *PersonData) String() string {
+func (pd PersonData) String() string {
 	return fmt.Sprintf("ID: %s\nName: %v\nEmail: %s\nLocation: %s\nTimeZone: %s\nUTCOffset: %d\nGeo: %v\nBio: %s\nSite: %s\nAvatar: %s\nEmployment: %v\nFacebook: %v\nGitHub: %v\nTwitter: %v\nLinkedIn: %v\nGooglePlus: %v\nGravatar: %v\nFuzzy: %t\nEmailProvider: %s\nIndexedAt: %s\nPhone: %s\nActiveAt: %s\nInactiveAt: %s\n",
 		pd.ID, pd.Name, pd.Email, pd.Location, pd.TimeZone, pd.UTCOffset, pd.Geo, pd.Bio, pd.Site, pd.Avatar, pd.Employment, pd.Facebook, pd.GitHub, pd.Twitter, pd.LinkedIn, pd.GooglePlus, pd.Gravatar, pd.Fuzzy, pd.EmailProvider, pd.IndexedAt, pd.Phone, pd.ActiveAt, pd.InactiveAt)
 }
@@ -728,11 +735,12 @@ type HunterCombinedEnrichmentResponse struct {
 
 // CombinedData contains both person and company information
 type CombinedData struct {
+	IString
 	Person  PersonData  `json:"person" gorm:"embedded;embeddedPrefix:person_"`
 	Company CompanyData `json:"company" gorm:"embedded;embeddedPrefix:company_"`
 }
 
-func (cbd *CombinedData) String() string {
+func (cbd CombinedData) String() string {
 	return fmt.Sprintf("Person: %s\nCompany: %s",
 		cbd.Person.String(),
 		cbd.Company.String())
@@ -748,4 +756,65 @@ func (c *HunterCombinedEnrichmentResponse) String() string {
 	return fmt.Sprintf("Person:\n%s\n\nCompany:\n%s",
 		c.Data.Person.String(),
 		c.Data.Company.String())
+}
+
+func StoreHunterDomain(hunterDomain HunterDomainData) error {
+	db := GetDB()
+
+	// Use OnConflict clause to handle duplicates
+	err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&hunterDomain).Error
+	if err != nil {
+		zap.L().Error("store_hunter_domain",
+			zap.String("message", "failed to store hunter domain"),
+			zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func StoreHunterEmails(hunterEmails []HunterEmail) error {
+	if len(hunterEmails) == 0 {
+		return nil
+	}
+
+	zap.L().Info("Storing hunter emails", zap.Int("count", len(hunterEmails)))
+	db := GetDB()
+
+	// Use batch insert with conflict handling
+	const batchSize = 100
+	var lastErr error
+
+	for i := 0; i < len(hunterEmails); i += batchSize {
+		end := i + batchSize
+		if end > len(hunterEmails) {
+			end = len(hunterEmails)
+		}
+
+		batch := hunterEmails[i:end]
+		// Use Clauses with OnConflict DoNothing to skip conflicts
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
+		if err != nil {
+			zap.L().Warn("Error storing some hunter emails", zap.Error(err))
+			lastErr = err
+			// Continue with next batch despite error
+		}
+	}
+
+	return lastErr
+}
+
+func StoreHunterPersonData(personData PersonData) error {
+	db := GetDB()
+
+	// Use OnConflict clause to handle duplicates
+	err := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&personData).Error
+	if err != nil {
+		zap.L().Error("store_person_data",
+			zap.String("message", "failed to store person data"),
+			zap.Error(err))
+		return err
+	}
+
+	return nil
 }

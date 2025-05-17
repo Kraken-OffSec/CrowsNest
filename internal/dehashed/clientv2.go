@@ -2,9 +2,9 @@ package dehashed
 
 import (
 	"bytes"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/sqlite"
 	"crypto/sha256"
-	"dehasher/internal/debug"
-	"dehasher/internal/sqlite"
 	"encoding/hex"
 	"encoding/json"
 	"errors"

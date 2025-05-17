@@ -1,7 +1,7 @@
 package easyTime
 
 import (
-	"dehasher/internal/debug"
+	"crowsnest/internal/debug"
 	"fmt"
 	"go.uber.org/zap"
 	"os"

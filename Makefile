@@ -4,7 +4,7 @@
 GO=go
 
 # Binary name
-BINARY_NAME=dehasher
+BINARY_NAME=crowsnest
 
 # Build directory
 BUILD_DIR=build/bin
@@ -16,7 +16,7 @@ PLATFORMS=linux darwin windows
 ARCHS=amd64 arm64
 
 # Version info from git tag or default
-VERSION=$(shell git describe --tags 2>/dev/null || echo "v1.2.1")
+VERSION=$(shell git describe --tags 2>/dev/null || echo "v1.3.1")
 
 .PHONY: all clean build build-all
 
@@ -30,14 +30,14 @@ clean:
 
 # Build for current platform
 build:
-	$(GO) build -o $(BUILD_DIR)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" dehasher.go
+	$(GO) build -o $(BUILD_DIR)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" crowsnest.go
 
 # Build for all platforms
 build-all: clean
 	@for platform in $(PLATFORMS); do \
 	    for arch in $(ARCHS); do \
 	        echo "Building for $$platform/$$arch..."; \
-	        GOOS=$$platform GOARCH=$$arch $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" dehasher.go; \
+	        GOOS=$$platform GOARCH=$$arch $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" crowsnest.go; \
 	        if [ "$$platform" = "windows" ]; then \
 	            mv $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch.exe; \
 	        fi; \

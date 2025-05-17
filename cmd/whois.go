@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"dehasher/internal/debug"
-	"dehasher/internal/export"
-	"dehasher/internal/files"
-	"dehasher/internal/pretty"
-	"dehasher/internal/sqlite"
-	"dehasher/internal/whois"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/export"
+	"crowsnest/internal/files"
+	"crowsnest/internal/pretty"
+	"crowsnest/internal/sqlite"
+	"crowsnest/internal/whois"
 	"fmt"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -208,7 +208,7 @@ var (
 								fmt.Printf("[!] Error writing WHOIS history to file: %v\n", writeErr)
 							}
 
-							err = sqlite.StoreHistoryRecord(historyRecords)
+							err = sqlite.StoreWhoisHistoryRecords(historyRecords)
 							if err != nil {
 								if debugGlobal {
 									debug.PrintInfo("failed to store history record")
@@ -254,7 +254,7 @@ var (
 						fmt.Printf("Error performing subdomain scan: %v\n", err)
 					} else {
 						fmt.Println("Subdomain Scan:")
-						err = sqlite.StoreSubdomainRecords(subdomains)
+						err = sqlite.StoreWhoisSubdomainRecords(subdomains)
 						if err != nil {
 							if debugGlobal {
 								debug.PrintInfo("failed to store subdomain record")

@@ -1,7 +1,7 @@
 package pretty
 
 import (
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/sqlite"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/tree"
