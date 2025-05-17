@@ -87,6 +87,7 @@ CrowsNest is capable of handling wildcard queries.
 A wildcard query cannot begin with a wildcard.  
 This is a limitation of the Dehashed API.
 An asterisk can be used to denote multiple characters, and a question mark can be used to denote a single character.
+<br>
 ![Alt text](.img/wildcard_query.png "Wildcard Query")
 ``` go
 # Provide credentials for emails matching @target.com and @target2.com
