@@ -213,6 +213,7 @@ dehasher whois -d google.com -s
 ## 📊 Database Querying
 Dehasher stores query results in a local database.  
 This database can be queried for previous results.
+This is useful for when you want to query for specific information.
 This database also includes WhoIs Information and Subdomain Scan results, but does **not** include historical lookups.
 
 ## Simple Query
@@ -224,7 +225,6 @@ This database also includes WhoIs Information and Subdomain Scan results, but do
 ![Alt text](.img/simple_where.png "Simple Query")
 
 Dehasher supports querying the database for previous results.  
-This is useful for when you want to query for specific information.
 ```bash
 # Query the database for all results containing the word 'admin' in the username
 dehasher query -t results -q "username LIKE '%admin%'"
