@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"dehasher/internal/easyTime"
 	"dehasher/internal/pretty"
 	"encoding/json"
 	"fmt"
@@ -73,6 +74,11 @@ var (
 				allLogs = append(allLogs, filepath.Join(logsPath, "info.log"), filepath.Join(logsPath, "error.log"))
 			}
 
+			var timeChunk easyTime.TimeChunk
+			if logStartDate != "" {
+				timeChunk = easyTime.NewTimeChunk(logStartDate, logEndDate, debugGlobal)
+			}
+
 			var parsedLogs []LogEntry
 			for _, logFile := range allLogs {
 				// Read the log file
@@ -97,7 +103,7 @@ var (
 						continue
 					}
 
-					// Also unmarshal to get additional fields
+					// Unmarshal to get additional fields
 					if err := json.Unmarshal([]byte(line), &rawEntry); err != nil {
 						fmt.Printf("Error parsing raw log entry: %v\n", err)
 						continue
@@ -106,10 +112,10 @@ var (
 					// Parse the timestamp
 					parsedTime, err := time.Parse("2006-01-02T15:04:05.999-0700", entry.Timestamp)
 					if err != nil {
-						// Try alternative formats
+						// Try RFC3339
 						parsedTime, err = time.Parse(time.RFC3339, entry.Timestamp)
 						if err != nil {
-							// Try another format
+							// Try RFC3339Nano
 							parsedTime, err = time.Parse(time.RFC3339Nano, entry.Timestamp)
 							if err != nil {
 								fmt.Printf("Error parsing timestamp '%s': %v\n", entry.Timestamp, err)
@@ -133,22 +139,8 @@ var (
 						(logFatal && strings.EqualFold(entry.Level, "FATAL")) {
 
 						// Filter by date range if specified
-						if logStartDate != "" {
-							startDate, err := time.Parse("2006-01-02", logStartDate)
-							if err != nil {
-								fmt.Printf("Error parsing start date: %v\n", err)
-							} else if entry.ParsedTime.Before(startDate) {
-								continue
-							}
-						}
-
-						if logEndDate != "" {
-							endDate, err := time.Parse("2006-01-02", logEndDate)
-							// Add one day to include the end date
-							endDate = endDate.Add(24 * time.Hour)
-							if err != nil {
-								fmt.Printf("Error parsing end date: %v\n", err)
-							} else if entry.ParsedTime.After(endDate) {
+						if timeChunk.IsSet() {
+							if entry.ParsedTime.Before(timeChunk.StartTime) || entry.ParsedTime.After(timeChunk.EndTime) {
 								continue
 							}
 						}
@@ -211,16 +203,3 @@ const (
 	FATAL
 	UNKNOWN Severity = -1
 )
-
-func getSeverity(logLevel string) Severity {
-	switch logLevel {
-	case "INFO":
-		return INFO
-	case "ERROR":
-		return ERROR
-	case "FATAL":
-		return FATAL
-	default:
-		return UNKNOWN
-	}
-}
