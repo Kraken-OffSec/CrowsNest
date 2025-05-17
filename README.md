@@ -76,8 +76,8 @@ To configure the database location:
 ### Simple Query
 Dehasher can be used simply for example to query for credentials matching a given email domain.
 ``` go
-# Provide credentials for emails matching @target.com
-dehasher api -D @target.com -C
+# Provide credentials for domains matching target.com
+dehasher api -D target.com -C
 ```
 
 ### Simple Credentials Query
@@ -91,8 +91,8 @@ dehasher api -E @target.com -C
 Dehasher is capable of handling multiple queries for the same field.  
 This is useful for when you want to search for multiple domains, or multiple usernames.
 ``` go
-# Provide credentials for emails matching @target.com and @target2.com
-dehasher api -E @target.com,@target2.com -C
+# Provide credentials for domains matching target.com and target2.com, retrieving only credentials
+dehasher api -D target.com,target2.com -C
 ```
 
 ### Wildcard Query
@@ -106,6 +106,20 @@ An asterisk can be used to denote multiple characters, and a question mark can b
 dehasher api -E @target?.com -C -W
 ```
 
+### Email Query
+Dehashed has dictated that emails should be searched in the following format:
+`email:target.name&domain:target.com`.
+As such, to query an email, please use the following format (note, wildcard is not required but can be useful):
+``` go
+# Provide credentials for emails matching target.*@target.com
+dehasher api -W -E 'target*' -D target.com
+```
+You may also query the domain and find emails as well
+``` go
+# Provide credentials for emails matching target.com
+dehasher api -D target.com -C
+```
+
 
 ### Regex Query
 Dehasher is capable of handling regex queries.  
@@ -113,7 +127,7 @@ Simply denote regex queries with the `-R` flag.
 Place all regex queries in quotes with the corresponding query flag in single quotes.
 ``` go
 # Return matches for emails matching this given regex query
-dehasher api -R -e '[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?@target.com'
+dehasher api -R -E '[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?@target.com'
 ```
 
 ### Output Text (default JSON)
@@ -126,7 +140,7 @@ Dehasher currently supports JSON, YAML, XML, and TEXT output formats.
 dehasher api -U admin -o admins_file -f txt
 ```
 
-<hr></hr>
+---
 
 ## 🌐 WhoIs Lookups
 Dehasher supports WHOIS lookups, history searches, reverse WHOIS searches, IP lookups, MX lookups, NS lookups, and subdomain scans.
@@ -202,7 +216,12 @@ This database can be queried for previous results.
 This database also includes WhoIs Information and Subdomain Scan results, but does **not** include historical lookups.
 
 ## Simple Query
+#### It's possible to query the database using shorthand and without knowing any SQL at all.
+#### The following queries the results table where username is not null, only showing the username, email and password columns.
 ![Alt text](.img/simple_query_db.png "Simple Query")
+#### You may also add in a simple query using the `-q` flag. The following displays a 'LIKE' clause on the email column.
+#### Note the '%\<clause\>%' is still required.
+![Alt text](.img/simple_where.png "Simple Query")
 
 Dehasher supports querying the database for previous results.  
 This is useful for when you want to query for specific information.
