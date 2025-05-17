@@ -240,7 +240,7 @@ dehasher hunter -d example.com -F John -L Doe -E
 ### Email Verification
 Dehasher can perform an email verification search for a given email.  
 This provides a list of all emails that match the given query.
-![Alt text](.img/hunter_email_verification.png "Hunter.io Email Verification")
+![Alt text](.img/email_verification.png "Hunter.io Email Verification")
 ```bash
 # Perform a Hunter.io email verification search for example@target.com
 dehasher hunter -e example@target.com -V
@@ -249,7 +249,7 @@ dehasher hunter -e example@target.com -V
 ### Company Enrichment
 Dehasher can perform a company enrichment search for a given domain.  
 This provides a list of all emails that match the given query.
-![Alt text](.img/hunter_company_enrichment.png "Hunter.io Company Enrichment")
+![Alt text](.img/company_enrichment.png "Hunter.io Company Enrichment")
 ```bash
 # Perform a Hunter.io company enrichment search for example.com
 dehasher hunter -d example.com -C
@@ -258,7 +258,7 @@ dehasher hunter -d example.com -C
 ### Person Enrichment
 Dehasher can perform a person enrichment search for a given email.  
 This provides a list of all emails that match the given query.
-![Alt text](.img/hunter_person_enrichment.png "Hunter.io Person Enrichment")
+![Alt text](.img/person_enrichment.png "Hunter.io Person Enrichment")
 ```bash
 # Perform a Hunter.io person enrichment search for example@target.com
 dehasher hunter -e example@target.com -P
@@ -267,7 +267,8 @@ dehasher hunter -e example@target.com -P
 ### Combined Enrichment
 Dehasher can perform a combined enrichment search for a given email.  
 This provides a list of all emails that match the given query.
-![Alt text](.img/hunter_combined_enrichment.png "Hunter.io Combined Enrichment")
+![Alt text](.img/combined_enrichment_1.png "Hunter.io Combined Enrichment")
+![Alt text](.img/combined_enrichment_2.png "Hunter.io Combined Enrichment")
 ```bash
 # Perform a Hunter.io combined enrichment search for example@target.com
 dehasher hunter -e example@target.com -B
