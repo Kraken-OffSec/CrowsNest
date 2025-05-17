@@ -1,4 +1,4 @@
-module dehasher
+module crowsnest
 
 go 1.23.0
 

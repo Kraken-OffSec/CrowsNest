@@ -1,10 +1,14 @@
 package sqlite
 
 import (
-	"dehasher/internal/files"
+	"crowsnest/internal/files"
 	"fmt"
 	"gorm.io/gorm"
 )
+
+type IString interface {
+	String() string
+}
 
 type DBOptions struct {
 	Username              string

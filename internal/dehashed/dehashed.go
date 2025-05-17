@@ -1,9 +1,9 @@
 package dehashed
 
 import (
-	"dehasher/internal/debug"
-	"dehasher/internal/export"
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/export"
+	"crowsnest/internal/sqlite"
 	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"

@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"dehasher/internal/debug"
-	"dehasher/internal/export"
-	"dehasher/internal/files"
-	"dehasher/internal/pretty"
-	"dehasher/internal/sqlite"
-	"dehasher/internal/whois"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/export"
+	"crowsnest/internal/files"
+	"crowsnest/internal/pretty"
+	"crowsnest/internal/sqlite"
+	"crowsnest/internal/whois"
 	"fmt"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"

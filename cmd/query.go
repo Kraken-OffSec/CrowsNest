@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"dehasher/internal/pretty"
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/pretty"
+	"crowsnest/internal/sqlite"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"

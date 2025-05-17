@@ -1,9 +1,9 @@
 package main
 
 import (
-	"dehasher/cmd"
-	"dehasher/internal/badger"
-	"dehasher/internal/sqlite"
+	"crowsnest/cmd"
+	"crowsnest/internal/badger"
+	"crowsnest/internal/sqlite"
 	"fmt"
 	"github.com/winking324/rzap"
 	"go.uber.org/zap"

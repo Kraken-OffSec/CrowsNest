@@ -1,8 +1,8 @@
 package hunter_io
 
 import (
-	"dehasher/internal/debug"
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/sqlite"
 	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"

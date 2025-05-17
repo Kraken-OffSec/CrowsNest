@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"dehasher/internal/easyTime"
-	"dehasher/internal/pretty"
+	"crowsnest/internal/easyTime"
+	"crowsnest/internal/pretty"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"

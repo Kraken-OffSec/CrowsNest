@@ -1,8 +1,8 @@
 package export
 
 import (
-	"dehasher/internal/files"
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/files"
+	"crowsnest/internal/sqlite"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"

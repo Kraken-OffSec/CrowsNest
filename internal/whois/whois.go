@@ -2,9 +2,9 @@ package whois
 
 import (
 	"bytes"
-	"dehasher/internal/debug"
-	"dehasher/internal/dehashed"
-	"dehasher/internal/sqlite"
+	"crowsnest/internal/debug"
+	"crowsnest/internal/dehashed"
+	"crowsnest/internal/sqlite"
 	"encoding/json"
 	"errors"
 	"fmt"
