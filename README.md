@@ -223,8 +223,7 @@ This database also includes WhoIs Information and Subdomain Scan results, but do
 #### You may also add in a simple query using the `-q` flag. The following displays a 'LIKE' clause on the email column.
 #### Note the '%\<clause\>%' is still required.
 ![Alt text](.img/simple_where.png "Simple Query")
-
-Dehasher supports querying the database for previous results.  
+  
 ```bash
 # Query the database for all results containing the word 'admin' in the username
 dehasher query -t results -q "username LIKE '%admin%'"
