@@ -400,7 +400,7 @@ Contributions are welcome! Submit a pull request to help improve CrowsNest.
 ## [Buy Me A Coffee](https://buymeacoffee.com/ehosinskiz)
 
 <div align="center">
-    <img src="https://img.wanman.io/fUSu0/jUtovIFE52.png/raw" style="width: 350px; height: auto" alt="Ar1ste1a" title="Ar1ste1a Offensive Security">
+    <img src=.img/kraken_k.png style="width: 350px; height: auto" alt="Ar1ste1a" title="Ar1ste1a Offensive Security">
 </div>
 
 ## **Release The Kraken**
