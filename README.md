@@ -225,7 +225,7 @@ crowsnest set-hunter <redacted>
 
 ### Domain Search
 CrowsNest can perform a domain search for a given domain.  
-This provides information about  company including a description, social media information and any technologies in use.
+This provides information about  company including a description, social media information and any technologies in use.<br>
 ![Alt text](.img/hunter_domain.png "Hunter.io Domain Search")
 ```bash
 # Perform a Hunter.io domain search for example.com
