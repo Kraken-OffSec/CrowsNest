@@ -30,18 +30,14 @@ clean:
 
 # Build for current platform
 build:
-	CGO_ENABLED=1 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" crowsnest.go
+	CGO_ENABLED=0 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME) -ldflags "-X main.version=$(VERSION)" crowsnest.go
 
 # Build for all platforms
 build-all: clean
 	@for platform in $(PLATFORMS); do \
 	    for arch in $(ARCHS); do \
 	        echo "Building for $$platform/$$arch..."; \
-	        if [ "$$platform" = "windows" ] || [ "$$platform" = "darwin" ]; then \
-	            GOOS=$$platform GOARCH=$$arch CGO_ENABLED=0 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" crowsnest.go; \
-	        else \
-	            GOOS=$$platform GOARCH=$$arch CGO_ENABLED=1 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" crowsnest.go; \
-	        fi; \
+	        GOOS=$$platform GOARCH=$$arch CGO_ENABLED=0 $(GO) build -o $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch -ldflags "-X main.version=$(VERSION)" crowsnest.go; \
 	        if [ "$$platform" = "windows" ]; then \
 	            mv $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch $(BUILD_DIR)/$(BINARY_NAME)-$$platform-$$arch.exe; \
 	        fi; \
