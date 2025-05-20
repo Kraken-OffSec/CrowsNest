@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gorm.io/driver/sqlite"
+	sql "github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -42,7 +42,7 @@ func InitDB(dbPath string) (*gorm.DB, error) {
 	}
 
 	zap.L().Info("Opening database", zap.String("finalPath", finalDbPath))
-	db, err := gorm.Open(sqlite.Open(finalDbPath), &gorm.Config{
+	db, err := gorm.Open(sql.Open(finalDbPath), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
