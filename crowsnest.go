@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	basePath = filepath.Join(os.Getenv("HOME"), ".local", "share", "Dehasher")
+	basePath = filepath.Join(os.Getenv("HOME"), ".local", "share", "CrowsNest")
 	logPath = filepath.Join(basePath, "logs")
 	storePath = filepath.Join(basePath, "keystore")
 	// dbPath will be set in main() after badger is initialized
