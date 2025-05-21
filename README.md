@@ -39,7 +39,7 @@ go build crowsnest.go
 
 CrowsNest supports two database storage options:
 
-1. **Default Path** (default): Stores the database at `~/.local/share/crowsnest/db/dehashed.sqlite`
+1. **Default Path** (default): Stores the database at `~/.local/share/crowsnest/db/crowsnest.sqlite`
 2. **Local Path**: Stores the database in the current directory as `./crowsnest.sqlite`
 
 The **Local Path** option allows for separate databases for different projects or engagements.

@@ -29,7 +29,7 @@ func InitDB(dbPath string) (*gorm.DB, error) {
 			zap.L().Error("Failed to create database directory", zap.Error(err))
 			return nil, fmt.Errorf("failed to create database directory: %w", err)
 		}
-		finalDbPath = filepath.Join(dbPath, "dehashed.sqlite")
+		finalDbPath = filepath.Join(dbPath, "crowsnest.sqlite")
 	} else {
 		// Treat as file path
 		// Ensure the directory exists

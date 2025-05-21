@@ -82,7 +82,7 @@ func main() {
 	useLocalDB := badger.GetUseLocalDB()
 	if useLocalDB {
 		// Use local database in current directory
-		dbPath = "./dehasher.sqlite"
+		dbPath = "./crowsnest.sqlite"
 		zap.L().Info("Using local database", zap.String("path", dbPath))
 	} else {
 		// Use default database path
