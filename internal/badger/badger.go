@@ -45,7 +45,7 @@ func GetHardwareEntropy() []byte {
 		username,
 		osInfo,
 		// You could add a static salt here for additional security
-		"Dehasher-static-salt-value",
+		"CrowsNest-static-salt-value",
 	}, ":")
 
 	// Hash the fingerprint to get a 32-byte key

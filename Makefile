@@ -1,4 +1,4 @@
-# Makefile for Dehasher
+# Makefile for CrowsNest
 
 # Go command
 GO=go
