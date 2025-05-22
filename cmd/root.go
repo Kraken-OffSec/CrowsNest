@@ -16,8 +16,8 @@ var (
 
 	// rootCmd is the base command for the CLI.
 	rootCmd = &cobra.Command{
-		Use:   "dehasher",
-		Short: `Dehasher is a cli tool for querying the dehashed api.`,
+		Use:   "crowsnest",
+		Short: `CrowsNest is a cli tool for querying the common OSINT api's.`,
 		Long: fmt.Sprintf(
 			"%s\n",
 			`
@@ -94,7 +94,7 @@ var setHunterKeyCmd = &cobra.Command{
 
 var setLocalDb = &cobra.Command{
 	Use:   "local-db [true|false]",
-	Short: "Set dehasher to use a local database path instead of the default path",
+	Short: "Set crowsnest to use a local database path instead of the default path",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		var useLocalDatabase bool
