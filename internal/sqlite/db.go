@@ -51,8 +51,8 @@ func InitDB(dbPath string) (*gorm.DB, error) {
 	}
 
 	// Auto migrate your models
-	err = db.AutoMigrate(&Result{}, &Creds{}, &QueryOptions{}, &Creds{}, &WhoisRecord{}, &SubdomainRecord{},
-		&HistoryRecord{}, &LookupResult{}, &HunterDomainData{}, &HunterEmail{}, &PersonData{})
+	err = db.AutoMigrate(&Result{}, &User{}, &QueryOptions{}, &User{}, &WhoisRecord{}, &HistoryRecord{},
+		&LookupResult{}, &HunterDomainData{}, &HunterEmail{}, &PersonData{}, &Subdomain{})
 	if err != nil {
 		zap.L().Error("Failed to migrate database", zap.Error(err))
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
@@ -122,7 +122,7 @@ func (t Table) Object() interface{} {
 	case RunsTable:
 		return QueryOptions{}
 	case CredsTable:
-		return Creds{}
+		return User{}
 	case WhoIsTable:
 		return WhoisRecord{}
 	case SubdomainsTable:

@@ -106,15 +106,15 @@ type Result struct {
 }
 
 func (Result) TableName() string {
-	return "results"
+	return "dehashed"
 }
 
 type DehashedResults struct {
 	Results []Result `json:"results"`
 }
 
-func (dr *DehashedResults) ExtractCredentials() []Creds {
-	var creds []Creds
+func (dr *DehashedResults) ExtractUsers() []User {
+	var creds []User
 
 	results := dr.Results
 
@@ -126,16 +126,22 @@ func (dr *DehashedResults) ExtractCredentials() []Creds {
 				email = r.Email[0]
 			}
 
+			// Get first username if available
+			username := ""
+			if len(r.Username) > 0 {
+				username = r.Username[0]
+			}
+
 			// Get first password
 			password := r.Password[0]
 
-			cred := Creds{Email: email, Password: password}
+			cred := User{Email: email, Password: password, Username: username}
 			creds = append(creds, cred)
 		}
 	}
 
 	go func() {
-		err := StoreDehashedCreds(creds)
+		err := StoreUsers(creds)
 		if err != nil {
 			zap.L().Error("store_creds",
 				zap.String("message", "failed to store creds"),
@@ -148,18 +154,11 @@ func (dr *DehashedResults) ExtractCredentials() []Creds {
 	return creds
 }
 
-type Creds struct {
-	gorm.Model
-	Email    string `json:"email" yaml:"email" xml:"email" gorm:"uniqueIndex:idx_email_username_password"`
-	Username string `json:"username" yaml:"username" xml:"username" gorm:"uniqueIndex:idx_email_username_password"`
-	Password string `json:"password" yaml:"password" xml:"password" gorm:"uniqueIndex:idx_email_username_password"`
-}
-
-func (Creds) TableName() string {
+func (User) TableName() string {
 	return "creds"
 }
 
-func (c Creds) ToString() string {
+func (c User) ToString() string {
 	return fmt.Sprintf("%s%s%s", c.Username, "%", c.Password)
 }
 
@@ -189,38 +188,6 @@ func StoreDehashedResults(results DehashedResults) error {
 		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
 		if err != nil {
 			zap.L().Warn("Error storing some results", zap.Error(err))
-			lastErr = err
-			// Continue with next batch despite error
-		}
-	}
-
-	return lastErr
-}
-
-func StoreDehashedCreds(creds []Creds) error {
-	if len(creds) == 0 {
-		return nil
-	}
-
-	zap.L().Info("Storing credentials", zap.Int("count", len(creds)))
-	db := GetDB()
-
-	// Use batch insert with conflict handling
-	// This will insert records in batches and continue even if some fail
-	const batchSize = 100
-	var lastErr error
-
-	for i := 0; i < len(creds); i += batchSize {
-		end := i + batchSize
-		if end > len(creds) {
-			end = len(creds)
-		}
-
-		batch := creds[i:end]
-		// Use Clauses with OnConflict DoNothing to skip conflicts
-		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&batch, batchSize).Error
-		if err != nil {
-			zap.L().Warn("Error storing some credentials", zap.Error(err))
 			lastErr = err
 			// Continue with next batch despite error
 		}

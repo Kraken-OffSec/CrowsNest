@@ -211,9 +211,9 @@ func (dh *Dehasher) buildRequest() {
 func (dh *Dehasher) parseResults() {
 	zap.L().Info("extracting_credentials")
 	results := dh.client.GetResults()
-	creds := results.ExtractCredentials()
+	creds := results.ExtractUsers()
 	fmt.Printf("   [+] Discovered %d Credentials\n", len(creds))
-	err := sqlite.StoreDehashedCreds(creds)
+	err := sqlite.StoreUsers(creds)
 	if err != nil {
 		zap.L().Error("store_creds",
 			zap.String("message", "failed to store creds"),
@@ -284,7 +284,7 @@ func (dh *Dehasher) parseResults() {
 			if dh.debug {
 				debug.PrintInfo("extracting credentials")
 			}
-			creds := results.ExtractCredentials()
+			creds := results.ExtractUsers()
 			if dh.debug {
 				debug.PrintInfo("writing credentials to file")
 			}

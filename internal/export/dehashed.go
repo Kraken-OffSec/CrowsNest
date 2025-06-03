@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func WriteCredsToFile(creds []sqlite.Creds, outputFile string, fileType files.FileType) error {
+func WriteCredsToFile(creds []sqlite.User, outputFile string, fileType files.FileType) error {
 	var data []byte
 	var err error
 
