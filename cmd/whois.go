@@ -240,6 +240,7 @@ var (
 					fmt.Println("[*] Performing WHOIS subdomain scan...")
 					subdomains, err := w.WhoisSubdomainScan(whoisDomain)
 
+					// Get credits
 					if whoisShowCredits {
 						checkBalance(w)
 					}
@@ -255,7 +256,13 @@ var (
 						)
 						fmt.Printf("Error performing subdomain scan: %v\n", err)
 					} else {
-						err = sqlite.StoreWhoisSubdomainRecords(subdomains)
+						// Store subdomains in subdomains table
+						var subs []sqlite.Subdomain
+						for _, s := range subdomains {
+							subs = append(subs, sqlite.Subdomain{Domain: whoisDomain, Subdomain: s.Domain})
+						}
+
+						err = sqlite.StoreSubdomains(subs)
 						if err != nil {
 							if debugGlobal {
 								debug.PrintInfo("failed to store subdomain record")
@@ -265,7 +272,7 @@ var (
 								zap.String("message", "failed to store subdomain record"),
 								zap.Error(err),
 							)
-							fmt.Printf("Error storing WHOIS subdomain record: %v\n", err)
+							fmt.Printf("Error storing subdomain record: %v\n", err)
 						}
 
 						// Write the subdomains to file if any

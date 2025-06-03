@@ -118,6 +118,7 @@ var (
 			dehasher.Start()
 			fmt.Println("\n[*] Completing Process")
 
+			// Store query options
 			err := sqlite.StoreDehashedQueryOptions(queryOptions)
 			if err != nil {
 				if debugGlobal {

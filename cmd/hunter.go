@@ -7,6 +7,7 @@ import (
 	"crowsnest/internal/files"
 	hunter "crowsnest/internal/hunter.io"
 	"crowsnest/internal/pretty"
+	"crowsnest/internal/sqlite"
 	"fmt"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -109,6 +110,24 @@ var (
 					)
 					fmt.Printf("Error performing domain search: %v\n", err)
 					return
+				}
+
+				// Store the users discovered
+				var creds []sqlite.User
+				for _, email := range result.Emails {
+					creds = append(creds, sqlite.User{Email: email.Value})
+				}
+				err = sqlite.StoreUsers(creds)
+				if err != nil {
+					if debugGlobal {
+						debug.PrintInfo("failed to store hunter domain search")
+						debug.PrintError(err)
+					}
+					zap.L().Error("store_hunter_domain_search",
+						zap.String("message", "failed to store hunter domain search"),
+						zap.Error(err),
+					)
+					fmt.Printf("Error storing Hunter.io Domain Search Result: %v\n", err)
 				}
 
 				// Write Hunter.io Domain Search Result to file
