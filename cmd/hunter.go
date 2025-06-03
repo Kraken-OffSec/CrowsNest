@@ -239,24 +239,17 @@ var (
 
 				// Pretty Print Hunter.io Email Verification Result
 				var (
-					headers = []string{"Email", "Status", "Result", "Score", "Regexp", "Gibberish", "Disposable", "Webmail", "MX Records", "SMTP Server", "SMTP Check", "Accept All", "Block", "Sources"}
+					headers = []string{"Email", "Result", "Score", "Disposable", "MX Records", "SMTP Server", "SMTP Check"}
 					rows    [][]string
 				)
 				rows = append(rows, []string{
 					result.Email,
-					result.Status,
 					result.Result,
 					fmt.Sprintf("%d", result.Score),
-					fmt.Sprintf("%t", result.Regexp),
-					fmt.Sprintf("%t", result.Gibberish),
 					fmt.Sprintf("%t", result.Disposable),
-					fmt.Sprintf("%t", result.Webmail),
 					fmt.Sprintf("%t", result.MXRecords),
 					fmt.Sprintf("%t", result.SMTPServer),
 					fmt.Sprintf("%t", result.SMTPCheck),
-					fmt.Sprintf("%t", result.AcceptAll),
-					fmt.Sprintf("%t", result.Block),
-					fmt.Sprintf("%v", result.Sources),
 				})
 
 				fmt.Println("Email Verification Result:")

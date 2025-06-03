@@ -255,25 +255,25 @@ func (dh *Dehasher) parseResults() {
 				debug.PrintInfo("printing results table")
 			}
 
-			headers = []string{"Name", "Email", "Username", "Password", "Address", "Phone", "Social", "Crypto Address", "Company"}
+			headers = []string{"Email", "Username", "Password", "Phone", "Company"}
 			if len(results.Results) > 50 {
 				fmt.Println("   [-] Large number of results recovered, displaying first 50...")
 				for i := 0; i < 50; i++ {
 					r := results.Results[i]
 					rows = append(rows, []string{
-						strings.Join(r.Name, ", "), strings.Join(r.Email, ", "),
-						strings.Join(r.Username, ", "), strings.Join(r.Password, ", "),
-						strings.Join(r.Address, ", "), strings.Join(r.Phone, ", "),
-						strings.Join(r.Social, ", "), strings.Join(r.CryptoCurrencyAddress, ", "),
+						strings.Join(r.Email, ", "),
+						strings.Join(r.Username, ", "),
+						strings.Join(r.Password, ", "),
+						strings.Join(r.Phone, ", "),
 						strings.Join(r.Company, ", ")})
 				}
 			} else {
 				for _, r := range results.Results {
 					rows = append(rows, []string{
-						strings.Join(r.Name, ", "), strings.Join(r.Email, ", "),
-						strings.Join(r.Username, ", "), strings.Join(r.Password, ", "),
-						strings.Join(r.Address, ", "), strings.Join(r.Phone, ", "),
-						strings.Join(r.Social, ", "), strings.Join(r.CryptoCurrencyAddress, ", "),
+						strings.Join(r.Email, ", "),
+						strings.Join(r.Username, ", "),
+						strings.Join(r.Password, ", "),
+						strings.Join(r.Phone, ", "),
 						strings.Join(r.Company, ", ")})
 				}
 			}
