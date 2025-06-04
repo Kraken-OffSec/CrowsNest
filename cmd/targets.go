@@ -21,8 +21,8 @@ func init() {
 	targetsCmd.Flags().BoolVarP(&targetsEmails, "emails", "E", false, "Output emails only (no passwords)")
 	targetsCmd.Flags().StringVarP(&targetsDomain, "domain", "d", "", "Filter by domain (for emails and subdomains)")
 
-	// Mark output flag as required
-	targetsCmd.MarkFlagRequired("output")
+	// Add mutually exclusive flags to targets command
+	targetsCmd.MarkFlagsMutuallyExclusive("external", "internal", "subdomains", "emails")
 }
 
 var (
