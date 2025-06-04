@@ -26,7 +26,7 @@ func init() {
 	queryCmd.Flags().StringVarP(&dbQueryRawQuery, "raw-query", "r", "", "Raw SQL query to execute")
 	queryCmd.Flags().BoolVarP(&dbQueryListAll, "list-all", "a", false, "List all tables and their columns")
 	queryCmd.Flags().StringVarP(&dbQueryFormat, "format", "f", "json", "Output format (json, yaml, xml, txt)")
-	queryCmd.Flags().StringVarP(&dbQueryFile, "file", "o", "query", "File to output results to including extension")
+	queryCmd.Flags().StringVarP(&dbQueryFile, "file", "o", "query", "File to output results to")
 
 	// Add mutually exclusive flags to query and raw-query
 	// Cannot use query and raw-query at the same time
@@ -51,7 +51,8 @@ var (
 	queryCmd = &cobra.Command{
 		Use:   "query",
 		Short: "Query the database",
-		Long:  `Query the database for various information.`,
+		Long: `Query the database for various information.
+If file is specified, results are written to file and not displayed in the terminal.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// If list-all flag is set, list all tables and columns
 			if dbQueryListAll {
