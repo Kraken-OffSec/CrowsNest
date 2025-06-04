@@ -22,7 +22,7 @@ func init() {
 	targetsCmd.Flags().StringVarP(&targetsDomain, "domain", "d", "", "Filter by domain (for emails and subdomains)")
 
 	// Mark output flag as required
-	targetsCmd.MarkFlagRequired("output")
+	targetsCmd.MarkFlagsMutuallyExclusive("external", "internal", "subdomains", "emails")
 }
 
 var (
